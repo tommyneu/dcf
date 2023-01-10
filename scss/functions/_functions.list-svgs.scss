@@ -1,0 +1,7 @@
+@function svg-file-names() {
+    // List of SVG files
+    // This is no the path only the name of the file
+
+    $svg-files: "plus";
+    @return $svg-files;
+}
