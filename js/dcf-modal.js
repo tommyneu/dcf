@@ -384,41 +384,52 @@ export class DCFModal {
       return;
     }
 
-    // Define constants used in modal component
-    const btnsToggleModal = document.querySelectorAll('.dcf-btn-toggle-modal');
-    const btnsCloseModal = document.querySelectorAll('.dcf-btn-close-modal');
-    const modalsWrapper = document.querySelectorAll('.dcf-modal-wrapper');
-    const modalsContent = document.querySelectorAll('.dcf-modal-content');
-    const modalsHeader = document.querySelectorAll('.dcf-modal-header');
+    // Loops through all the modals
+    this.modals.forEach((modalElement) => {
+      // Get the ID of the modal
+      const modalId = modalElement.getAttribute('id');
 
-    // Loop through all buttons that open modals
-    btnsToggleModal.forEach((button) => {
-      const modalId = button.getAttribute('data-toggles-modal');
+      // Define constants used in modal component
+      const btnsToggleModal = document.querySelectorAll(`.dcf-btn-toggle-modal[data-toggles-modal='${modalId}']`);
+      const btnCloseModal = modalElement.querySelector('.dcf-btn-close-modal');
+      const modalWrapper = modalElement.querySelector('.dcf-modal-wrapper');
+      const modalContent = modalElement.querySelector('.dcf-modal-content');
+      const modalHeader = modalElement.querySelector('.dcf-modal-header');
 
-      // Generate unique ID for each 'open modal' button
-      let btnId = DCFUtility.uuidv4();
-      if (button.id !== undefined && button.id !== '') {
-        btnId = button.id;
+      if (btnCloseModal === null) {
+        throw new Error(`Modal is missing close button: \n ${modalElement.outerHTML}`);
       }
-      button.setAttribute('id', btnId);
 
-      // Buttons are disabled by default until JavaScript has loaded.
-      // Remove the 'disabled' attribute to make them functional.
-      button.removeAttribute('disabled');
-      this.btnToggleListen(button, modalId, btnId);
-    });
+      if (modalWrapper === null) {
+        throw new Error(`Modal is missing wrapper: \n ${modalElement.outerHTML}`);
+      }
 
-    // Loop through all modals
-    for (let modalIndex = 0; modalIndex < this.modals.length; modalIndex++) {
-      const modal = this.modals[modalIndex];
-      const modalWrapper = modalsWrapper[modalIndex];
-      const modalContent = modalsContent[modalIndex];
-      const modalHeader = modalsHeader[modalIndex];
-      const btnCloseModal = btnsCloseModal[modalIndex];
-      const modalId = modal.id;
+      if (modalContent === null) {
+        throw new Error(`Modal is missing content: \n ${modalElement.outerHTML}`);
+      }
+
+      if (modalHeader === null) {
+        throw new Error(`Modal is missing header: \n ${modalElement.outerHTML}`);
+      }
+
+      // Loop through all buttons that open modals
+      btnsToggleModal.forEach((button) => {
+        // Generate unique ID for each 'open modal' button
+        let btnId = DCFUtility.uuidv4();
+        if (button.id !== undefined && button.id !== '') {
+          btnId = button.id;
+        }
+        button.setAttribute('id', btnId);
+
+        // Buttons are disabled by default until JavaScript has loaded.
+        // Remove the 'disabled' attribute to make them functional.
+        button.removeAttribute('disabled');
+        this.btnToggleListen(button, modalId, btnId);
+      });
+
       const modalHeadingId = `${modalId }-heading`;
-      const deliberateCloseOnly = typeof modal.dataset.deliberateCloseOnly !== 'undefined' &&
-        modal.dataset.deliberateCloseOnly.toLowerCase() !== 'false';
+      const deliberateCloseOnly = typeof modalElement.dataset.deliberateCloseOnly !== 'undefined' &&
+      modalElement.dataset.deliberateCloseOnly.toLowerCase() !== 'false';
 
       // Get all headings in each modal header
       const modalHeadings = modalHeader.querySelectorAll('h1, h2, h3, h4, h5, h6');
@@ -427,26 +438,26 @@ export class DCFModal {
       modalHeadings[DCFUtility.magicNumbers('int0')].id = modalHeadingId;
 
       // Append modals to body so that elements outside of modal can be hidden when modal is open
-      this.appendToBody(modal);
+      this.appendToBody(modalElement);
 
       // Modals are hidden by default until JavaScript has loaded.
       // Remove `hidden` attribute, then later replace with `.dcf-invisible` to allow for modal transitions.
-      modal.removeAttribute('hidden');
+      modalElement.removeAttribute('hidden');
 
       // Set attributes for each modal
-      modal.setAttribute('aria-labelledby', modalHeadingId);
-      modal.setAttribute('aria-hidden', 'true');
-      modal.setAttribute('role', 'dialog');
-      modal.setAttribute('tabindex', '-1');
+      modalElement.setAttribute('aria-labelledby', modalHeadingId);
+      modalElement.setAttribute('aria-hidden', 'true');
+      modalElement.setAttribute('role', 'dialog');
+      modalElement.setAttribute('tabindex', '-1');
 
       // Check modal for any additional classes
-      if (modal.classList.length === DCFUtility.magicNumbers('int1') && modal.classList.contains('dcf-modal')) {
+      if (modalElement.classList.length === DCFUtility.magicNumbers('int1') && modalElement.classList.contains('dcf-modal')) {
         // If no custom classes are present, add default background utility class to modal
-        modal.classList.add('dcf-bg-overlay-dark');
+        modalElement.classList.add('dcf-bg-overlay-dark');
       }
 
       // Add default utility classes to each modal
-      modal.classList.add('dcf-fixed', 'dcf-top-0', 'dcf-left-0', 'dcf-h-100%', 'dcf-w-100%', 'dcf-d-flex', 'dcf-ai-center',
+      modalElement.classList.add('dcf-fixed', 'dcf-top-0', 'dcf-left-0', 'dcf-h-100%', 'dcf-w-100%', 'dcf-d-flex', 'dcf-ai-center',
         'dcf-jc-center', 'dcf-opacity-0', 'dcf-pointer-events-none', 'dcf-invisible');
 
       // Set attribute for modal wrapper
@@ -467,8 +478,10 @@ export class DCFModal {
       }
 
       // Check each 'close' button for any additional classes
-      if (btnCloseModal.classList.length === DCFUtility.magicNumbers('int1') &&
-        btnCloseModal.classList.contains('dcf-btn-close-modal')) {
+      if (
+        btnCloseModal.classList.length === DCFUtility.magicNumbers('int1') &&
+        btnCloseModal.classList.contains('dcf-btn-close-modal')
+      ) {
         // If no custom classes are present, add default utility classes to 'close' button
         btnCloseModal.classList.add('dcf-btn', 'dcf-btn-tertiary', 'dcf-absolute', 'dcf-top-0', 'dcf-right-0', 'dcf-z-1');
       }
@@ -486,9 +499,9 @@ export class DCFModal {
 
       this.escListen();
       if (!deliberateCloseOnly) {
-        this.overlayListen(modal, modalWrapper);
+        this.overlayListen(modalElement, modalWrapper);
       }
-      this.btnCloseListen(btnCloseModal, modal);
-    }
+      this.btnCloseListen(btnCloseModal, modalElement);
+    });
   }
 }
