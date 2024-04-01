@@ -1,0 +1,19 @@
+.dcf-gallery-img.dcf-btn-toggle-modal {
+    appearance: none;
+    cursor: pointer;
+}
+
+.dcf-gallery-image-modal-content {
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+.dcf-gallery-image-modal-content figure img{
+    max-height: 50vh;
+    max-width: 75vw;
+}
+
+.dcf-gallery-image-selected {
+    padding: 0.1em;
+    border: $border-width-selected-gallery-image solid $border-color-selected-gallery-image;
+}
