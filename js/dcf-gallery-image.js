@@ -215,10 +215,28 @@ export class DCFGalleryImage {
       singleCopiedImage.classList.add('dcf-ratio-child', 'dcf-obj-fit-cover');
       list.innerHTML = `
         ${list.innerHTML}
-        <li class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-rounded dcf-overflow-hidden ${isSelected ? 'dcf-gallery-image-selected' : ''}">
+        <li class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-rounded dcf-overflow-hidden ${isSelected ? 'dcf-gallery-image-selected' : ''}" tabindex="0">
           ${singleCopiedImage.outerHTML}
         </li>
       `;
+    });
+
+    const listItems = list.querySelectorAll('li');
+    listItems.forEach((listItem) => {
+      const switchImage = () => {
+        listItems.forEach((singleListItem) => {
+          singleListItem.classList.remove('dcf-gallery-image-selected');
+        });
+        listItem.classList.add('dcf-gallery-image-selected');
+
+        this.replaceMainImageForModal(listItem.querySelector('img'));
+      };
+      listItem.addEventListener('click', switchImage);
+      listItem.addEventListener('keydown', (keyboardEvent) => {
+        if (keyboardEvent.code === 'Enter' || keyboardEvent.code === 'Space') {
+          switchImage();
+        }
+      });
     });
   }
 
@@ -268,8 +286,7 @@ export class DCFGalleryImage {
 
   cleanImageForModal(imageElement) {
     let copiedImageElement = imageElement.cloneNode();
-    copiedImageElement.classList.remove('dcf-gallery-img');
-    copiedImageElement.classList.remove('dcf-btn-toggle-modal');
+    copiedImageElement.classList.remove('dcf-gallery-img', 'dcf-btn-toggle-modal', 'dcf-ratio-child', 'dcf-obj-fit-cover');
     copiedImageElement.removeAttribute('type');
     copiedImageElement.removeAttribute('disabled');
     copiedImageElement.removeAttribute('id');
