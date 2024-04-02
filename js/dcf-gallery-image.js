@@ -97,7 +97,7 @@ export class DCFGalleryImage {
         <h2 class="dcf-sr-only">Image Gallery</h2>
         <button class="dcf-btn-close-modal">Close</button>
       </div>
-      <div class="dcf-modal-content dcf-gallery-image-modal-content">
+      <div class="dcf-modal-content dcf-gallery-image-modal-content dcf-d-grid">
         <div class="dcf-d-flex dcf-flex-col dcf-flex-nowrap dcf-2nd">
           <div class="dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-flex-end dcf-gap-1 dcf-mr-3">
             <button
