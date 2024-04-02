@@ -12,6 +12,6 @@
     height: 70vh;
 }
 
-.dcf-gallery-image-selected {
+.dcf-gallery-image-modal-content li[aria-selected="true"] {
     border: $border-width-selected-gallery-image solid $border-color-selected-gallery-image;
 }

@@ -62,6 +62,16 @@ export class DCFGalleryImage {
     this.modalObj.initialize();
     this.createModalEventListeners(modalDiv);
 
+    const modalPrevButton = modalDiv.querySelector('.dcf-gallery-image-modal-prev');
+    const modalNextButton = modalDiv.querySelector('.dcf-gallery-image-modal-next');
+
+    modalPrevButton.addEventListener('click', () => {
+      this.previousImageForModal();
+    });
+    modalNextButton.addEventListener('click', () => {
+      this.nextImageForModal();
+    });
+
     // Loops through each one
     this.galleryImages.forEach((galleryImage) => {
       if (!('tagName' in galleryImage) || galleryImage.tagName !== 'IMG') {
@@ -88,9 +98,7 @@ export class DCFGalleryImage {
         <button class="dcf-btn-close-modal">Close</button>
       </div>
       <div class="dcf-modal-content dcf-gallery-image-modal-content">
-        <figure class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto">
-        </figure>
-        <div class="dcf-d-flex dcf-flex-col dcf-flex-nowrap">
+        <div class="dcf-d-flex dcf-flex-col dcf-flex-nowrap dcf-2nd">
           <div class="dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-flex-end dcf-gap-1 dcf-mr-3">
             <button
               class="
@@ -106,9 +114,17 @@ export class DCFGalleryImage {
                 dcf-ai-center
               ">
                 <span class="dcf-sr-only">Previous Image</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 36" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block" style="rotate: 180deg;">
-                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
-                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 30 36"
+                  class="dcf-fill-current
+                  dcf-h-4 dcf-w-4 dcf-d-block"
+                  style="rotate: 180deg;"
+                >
+                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
+                  C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
+                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
+                  C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
                   c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
                 </svg>
               </button>
@@ -126,26 +142,40 @@ export class DCFGalleryImage {
                 dcf-ai-center
               ">
                 <span class="dcf-sr-only">Next Image</span>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 36" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block">
-                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
-                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 30 36"
+                  class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block"
+                >
+                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
+                  C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
+                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
+                  C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
                   c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
                 </svg>
               </button>
           </div>
           <div class="dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-4 dcf-pr-6 dcf-pb-4 dcf-pl-6">
             <ul
-              class="dcf-gallery-image-modal-list
+              role="tablist"
+              aria-label="images"
+              class="
+                dcf-gallery-image-modal-list
                 dcf-d-flex
                 dcf-flex-nowrap
                 dcf-mb-0
                 dcf-p-0
                 dcf-gap-3
               "
-              role="list"
             ></ul>
           </div>
         </div>
+        <figure
+          role="tabpanel"
+          aria-live="polite"
+          class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto dcf-1st"
+        >
+        </figure>
       </div>
     </div>
     `;
@@ -212,7 +242,7 @@ export class DCFGalleryImage {
     }
 
     list.innerHTML = '';
-    allGalleryImages.forEach((singleImage) => {
+    allGalleryImages.forEach((singleImage, index) => {
       if (singleImage.dataset.ready !== 'ready') {
         this.addNewGalleryImage(singleImage);
       }
@@ -227,7 +257,13 @@ export class DCFGalleryImage {
       singleCopiedImage.classList.add('dcf-ratio-child', 'dcf-obj-fit-cover');
       list.innerHTML = `
         ${list.innerHTML}
-        <li class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-mb-0 dcf-rounded dcf-overflow-hidden ${isSelected ? 'dcf-gallery-image-selected' : ''}" tabindex="0">
+        <li
+          role="tab"
+          aria-selected="${isSelected ? 'true' : 'false'}"
+          aria-label="image ${index + DCFUtility.magicNumbers('int1')}"
+          tabindex="${isSelected ? '0' : '-1'}"
+          class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-mb-0 dcf-rounded dcf-overflow-hidden"
+        >
           ${singleCopiedImage.outerHTML}
         </li>
       `;
@@ -235,18 +271,21 @@ export class DCFGalleryImage {
 
     const listItems = list.querySelectorAll('li');
     listItems.forEach((listItem) => {
-      const switchImage = () => {
-        listItems.forEach((singleListItem) => {
-          singleListItem.classList.remove('dcf-gallery-image-selected');
-        });
-        listItem.classList.add('dcf-gallery-image-selected');
-
-        this.replaceMainImageForModal(listItem.querySelector('img'));
-      };
-      listItem.addEventListener('click', switchImage);
+      listItem.addEventListener('click', () => {
+        this.switchToImage(listItem);
+      });
       listItem.addEventListener('keydown', (keyboardEvent) => {
-        if (keyboardEvent.code === 'Enter' || keyboardEvent.code === 'Space') {
-          switchImage();
+        if (keyboardEvent.code === 'ArrowRight') {
+          this.nextImageForModal(true);
+        }
+        if (keyboardEvent.code === 'ArrowLeft') {
+          this.previousImageForModal(true);
+        }
+        if (keyboardEvent.code === 'Home') {
+          this.switchToImage(listItems[DCFUtility.magicNumbers('int0')], true);
+        }
+        if (keyboardEvent.code === 'End') {
+          this.switchToImage(listItems[listItems.length - DCFUtility.magicNumbers('int1')], true);
         }
       });
     });
@@ -269,6 +308,68 @@ export class DCFGalleryImage {
 
     list.innerHTML = '';
     figure.innerHTML = '';
+  }
+
+  previousImageForModal(focus = false) {
+    const modal = document.getElementById(this.modalId);
+    if (modal === null) {
+      throw new Error('Can not find gallery image modal!');
+    }
+
+    const list = modal.querySelector('ul');
+    if (list === null) {
+      throw new Error('Can not find gallery image figure!');
+    }
+
+    const allImages = list.querySelectorAll('li');
+    const currentImage = list.querySelector('li[aria-selected="true"]');
+    const prevImage = currentImage.previousElementSibling || allImages[allImages.length - DCFUtility.magicNumbers('int1')];
+
+    this.switchToImage(prevImage, focus);
+  }
+
+  nextImageForModal(focus = false) {
+    const modal = document.getElementById(this.modalId);
+    if (modal === null) {
+      throw new Error('Can not find gallery image modal!');
+    }
+
+    const list = modal.querySelector('ul');
+    if (list === null) {
+      throw new Error('Can not find gallery image figure!');
+    }
+
+    const allImages = list.querySelectorAll('li');
+    const currentImage = list.querySelector('li[aria-selected="true"]');
+    const nextImage = currentImage.nextElementSibling || allImages[DCFUtility.magicNumbers('int0')];
+
+    this.switchToImage(nextImage, focus);
+  }
+
+  switchToImage(newItemToSwitchTo, focus = false) {
+    const modal = document.getElementById(this.modalId);
+    if (modal === null) {
+      throw new Error('Can not find gallery image modal!');
+    }
+
+    const list = modal.querySelector('ul');
+    if (list === null) {
+      throw new Error('Can not find gallery image figure!');
+    }
+
+    const allImages = list.querySelectorAll('li');
+    allImages.forEach((singleListItem) => {
+      singleListItem.setAttribute('tabindex', '-1');
+      singleListItem.setAttribute('aria-selected', 'false');
+    });
+    newItemToSwitchTo.setAttribute('tabindex', '0');
+    newItemToSwitchTo.setAttribute('aria-selected', 'true');
+
+    if (focus === true) {
+      newItemToSwitchTo.focus();
+    }
+
+    this.replaceMainImageForModal(newItemToSwitchTo.querySelector('img'));
   }
 
   replaceMainImageForModal(imageElement) {
