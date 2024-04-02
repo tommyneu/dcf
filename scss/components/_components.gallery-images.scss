@@ -14,7 +14,7 @@
     width: 75vw;
 }
 
-.dcf-gallery-image-selected {
+.dcf-gallery-image-modal-content li[aria-selected="true"] {
     padding: 0.1em;
     border: $border-width-selected-gallery-image solid $border-color-selected-gallery-image;
 }
