@@ -5,16 +5,13 @@
 }
 
 .dcf-gallery-image-modal-content {
-    display: grid;
     grid-template-rows: 1fr auto;
 }
 
 .dcf-gallery-image-modal-content figure {
     height: 70vh;
-    width: 75vw;
 }
 
 .dcf-gallery-image-selected {
-    padding: 0.1em;
     border: $border-width-selected-gallery-image solid $border-color-selected-gallery-image;
 }

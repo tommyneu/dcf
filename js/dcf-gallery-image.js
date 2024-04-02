@@ -88,7 +88,7 @@ export class DCFGalleryImage {
         <button class="dcf-btn-close-modal">Close</button>
       </div>
       <div class="dcf-modal-content dcf-gallery-image-modal-content">
-        <figure class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-m-auto">
+        <figure class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto">
         </figure>
         <div class="dcf-d-flex dcf-flex-col dcf-flex-nowrap">
           <div class="dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-flex-end dcf-gap-1 dcf-mr-3">
@@ -133,23 +133,18 @@ export class DCFGalleryImage {
                 </svg>
               </button>
           </div>
-          <ul
-            class="
-              dcf-gallery-image-modal-list
-              dcf-d-flex
-              dcf-flex-row
-              dcf-flex-nowrap
-              dcf-overflow-y-hidden
-              dcf-overflow-x-auto
-              dcf-mb-0
-              dcf-mt-0
-              dcf-ml-3
-              dcf-mr-3
-              dcf-p-0
-              dcf-gap-3
-            "
-            role="list"
-          ></ul>
+          <div class="dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-4 dcf-pr-6 dcf-pb-4 dcf-pl-6">
+            <ul
+              class="dcf-gallery-image-modal-list
+                dcf-d-flex
+                dcf-flex-nowrap
+                dcf-mb-0
+                dcf-p-0
+                dcf-gap-3
+              "
+              role="list"
+            ></ul>
+          </div>
         </div>
       </div>
     </div>
@@ -232,7 +227,7 @@ export class DCFGalleryImage {
       singleCopiedImage.classList.add('dcf-ratio-child', 'dcf-obj-fit-cover');
       list.innerHTML = `
         ${list.innerHTML}
-        <li class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-rounded dcf-overflow-hidden ${isSelected ? 'dcf-gallery-image-selected' : ''}" tabindex="0">
+        <li class="dcf-ratio dcf-ratio-4x3 dcf-w-10 dcf-mb-0 dcf-rounded dcf-overflow-hidden ${isSelected ? 'dcf-gallery-image-selected' : ''}" tabindex="0">
           ${singleCopiedImage.outerHTML}
         </li>
       `;
@@ -288,7 +283,7 @@ export class DCFGalleryImage {
     }
 
     const copiedImageElement = this.cleanImageForModal(imageElement);
-    copiedImageElement.classList.add('dcf-obj-fit-contain', 'dcf-h-100%', 'dcf-w-100%');
+    copiedImageElement.classList.add('dcf-obj-fit-contain');
     figure.innerHTML = `
       ${copiedImageElement.outerHTML}
       <figcaption class="dcf-figcaption">
