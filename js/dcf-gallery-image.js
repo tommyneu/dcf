@@ -62,8 +62,8 @@ export class DCFGalleryImage {
     this.modalObj.initialize();
     this.createModalEventListeners(modalDiv);
 
-    const modalPrevButton = modalDiv.querySelector('.dcf-gallery-image-modal-prev');
-    const modalNextButton = modalDiv.querySelector('.dcf-gallery-image-modal-next');
+    const modalPrevButton = modalDiv.querySelector('.dcf-gallery-image-modal-btn-prev');
+    const modalNextButton = modalDiv.querySelector('.dcf-gallery-image-modal-btn-next');
 
     modalPrevButton.addEventListener('click', () => {
       this.previousImageForModal();
@@ -98,83 +98,84 @@ export class DCFGalleryImage {
         <button class="dcf-btn-close-modal">Close</button>
       </div>
       <div class="dcf-modal-content dcf-gallery-image-modal-content dcf-d-grid">
-        <div class="dcf-d-flex dcf-flex-col dcf-flex-nowrap dcf-2nd">
-          <div class="dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-flex-end dcf-gap-1 dcf-mr-3">
-            <button
-              class="
-                dcf-btn
-                dcf-btn-secondary
-                dcf-gallery-image-modal-prev
-                dcf-circle
-                dcf-p-0
-                dcf-h-7
-                dcf-w-7
-                dcf-d-flex
-                dcf-jc-center
-                dcf-ai-center
-              ">
-                <span class="dcf-sr-only">Previous Image</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 30 36"
-                  class="dcf-fill-current
-                  dcf-h-4 dcf-w-4 dcf-d-block"
-                  style="rotate: 180deg;"
-                >
-                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
-                  C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
-                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
-                  C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
-                  c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
-                </svg>
-              </button>
-              <button
-              class="
-                dcf-btn
-                dcf-btn-secondary
-                dcf-gallery-image-modal-next
-                dcf-circle
-                dcf-p-0
-                dcf-h-7
-                dcf-w-7
-                dcf-d-flex
-                dcf-jc-center
-                dcf-ai-center
-              ">
-                <span class="dcf-sr-only">Next Image</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 30 36"
-                  class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block"
-                >
-                  <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
-                  C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
-                  L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
-                  C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
-                  c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
-                </svg>
-              </button>
-          </div>
-          <div class="dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-4 dcf-pr-6 dcf-pb-4 dcf-pl-6">
-            <ul
-              role="tablist"
-              aria-label="images"
-              class="
-                dcf-gallery-image-modal-list
-                dcf-d-flex
-                dcf-flex-nowrap
-                dcf-mb-0
-                dcf-p-0
-                dcf-gap-3
-              "
-              style="list-style: none;"
-            ></ul>
-          </div>
+        <div class="dcf-gallery-image-modal-prev dcf-d-flex dcf-ai-center dcf-p-4">
+          <button
+            class="
+              dcf-btn
+              dcf-btn-secondary
+              dcf-gallery-image-modal-btn-prev
+              dcf-circle
+              dcf-p-0
+              dcf-h-7
+              dcf-w-7
+              dcf-d-flex
+              dcf-jc-center
+              dcf-ai-center
+            ">
+              <span class="dcf-sr-only">Previous Image</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 30 36"
+                class="dcf-fill-current
+                dcf-h-4 dcf-w-4 dcf-d-block"
+                style="rotate: 180deg;"
+              >
+                <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
+                C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
+                L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
+                C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
+                c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
+              </svg>
+          </button>
+        </div>
+        <div class="dcf-gallery-image-modal-next dcf-d-flex dcf-ai-center dcf-p-4">
+          <button
+          class="
+            dcf-btn
+            dcf-btn-secondary
+            dcf-gallery-image-modal-btn-next
+            dcf-circle
+            dcf-p-0
+            dcf-h-7
+            dcf-w-7
+            dcf-d-flex
+            dcf-jc-center
+            dcf-ai-center
+          ">
+            <span class="dcf-sr-only">Next Image</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 30 36"
+              class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block"
+            >
+              <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
+              C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
+              L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
+              C4.8,35.5,5.8,36,6.9,36c0.9,0,1.7-0.3,2.4-0.9l16.3-14.4
+              c0.8-0.7,1.2-1.7,1.2-2.7S26.3,16,25.5,15.3z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="dcf-gallery-image-modal-thumbnails dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-4 dcf-pb-4">
+          <ul
+            role="tablist"
+            aria-label="images"
+            class="
+              dcf-gallery-image-modal-list
+              dcf-d-flex
+              dcf-flex-nowrap
+              dcf-mb-0
+              dcf-pr-6
+              dcf-pl-6
+              dcf-gap-3
+            "
+            style="list-style: none;"
+          ></ul>
         </div>
         <figure
           role="tabpanel"
           aria-live="polite"
-          class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto dcf-1st"
+          class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto"
         >
         </figure>
       </div>
@@ -261,7 +262,7 @@ export class DCFGalleryImage {
           aria-selected="${isSelected ? 'true' : 'false'}"
           aria-label="image ${index + DCFUtility.magicNumbers('int1')}"
           tabindex="${isSelected ? '0' : '-1'}"
-          class="dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-mb-0 dcf-rounded"
+          class="dcf-flex-shrink-0 dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-mb-0 dcf-rounded"
         >
           ${singleCopiedImage.outerHTML}
         </li>
