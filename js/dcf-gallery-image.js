@@ -167,6 +167,7 @@ export class DCFGalleryImage {
                 dcf-p-0
                 dcf-gap-3
               "
+              style="list-style: none;"
             ></ul>
           </div>
         </div>
