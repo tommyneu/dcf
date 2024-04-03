@@ -192,10 +192,8 @@ export class DCFGalleryImage {
       imageElement.setAttribute('id', this.uuid.concat('-gallery-image-', this.galleryImageRunningTotal));
     }
 
-    imageElement.classList.add('dcf-btn-toggle-modal');
     imageElement.setAttribute('type', 'button');
     imageElement.dataset.ready = 'ready';
-    imageElement.dataset.togglesModal = this.modalId;
 
     this.galleryImageRunningTotal++;
   }
@@ -401,7 +399,7 @@ export class DCFGalleryImage {
 
   cleanImageForModal(imageElement) {
     let copiedImageElement = imageElement.cloneNode();
-    copiedImageElement.classList.remove('dcf-gallery-img', 'dcf-btn-toggle-modal', 'dcf-ratio-child', 'dcf-obj-fit-cover');
+    copiedImageElement.classList.remove('dcf-gallery-img', 'dcf-ratio-child', 'dcf-obj-fit-cover');
     copiedImageElement.removeAttribute('type');
     copiedImageElement.removeAttribute('disabled');
     copiedImageElement.removeAttribute('id');
