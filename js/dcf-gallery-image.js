@@ -261,7 +261,7 @@ export class DCFGalleryImage {
           aria-selected="${isSelected ? 'true' : 'false'}"
           aria-label="image ${index + DCFUtility.magicNumbers('int1')}"
           tabindex="${isSelected ? '0' : '-1'}"
-          class="dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-mb-0 dcf-rounded dcf-overflow-hidden"
+          class="dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-mb-0 dcf-rounded"
         >
           ${singleCopiedImage.outerHTML}
         </li>
