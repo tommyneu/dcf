@@ -26,7 +26,7 @@
     height: calc(100vh - 2em - 3.16em - 2.37em - 4.21em - 2em);
 }
 
-.dcf-gallery-image-modal-content li[aria-selected="true"] {
+.dcf-gallery-image-modal-content li[aria-selected="true"] div {
     border: $border-width-selected-gallery-image solid $border-color-selected-gallery-image;
 }
 
@@ -36,4 +36,12 @@
 
 .dcf-gallery-image-modal-content li:last-child {
     margin-right: auto;
+}
+
+.dcf-gallery-image-modal-content li:first-child div {
+    margin-left: 1.78em;
+}
+
+.dcf-gallery-image-modal-content li:last-child div {
+    margin-right: 1.78em;
 }
