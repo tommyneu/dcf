@@ -1,0 +1,21 @@
+.dcf-search-and-select-search-area {
+    max-height: 10rem;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr auto;
+}
+
+.dcf-search-and-select-search-area .dcf-search-and-select-selected-items {
+    list-style: none;
+}
+
+.dcf-search-and-select-search-area .dcf-search-and-select-open-btn {
+    grid-row: span 2 / span 2;
+}
+
+.dcf-search-and-select-search-area .dcf-search-and-select-open-btn button{
+    transform: translateY(-50%);
+}
+
+.dcf-search-and-select-available-items {
+    background-color: blue;
+}
