@@ -99,27 +99,9 @@ export class DCFGalleryImage {
       </div>
       <div class="dcf-modal-content dcf-gallery-image-modal-content dcf-d-grid">
         <div class="dcf-gallery-image-modal-prev dcf-d-flex dcf-ai-center dcf-p-4">
-          <button
-            class="
-              dcf-btn
-              dcf-btn-secondary
-              dcf-gallery-image-modal-btn-prev
-              dcf-circle
-              dcf-p-0
-              dcf-h-7
-              dcf-w-7
-              dcf-d-flex
-              dcf-jc-center
-              dcf-ai-center
-            ">
+          <button class="dcf-btn dcf-btn-secondary dcf-gallery-image-modal-btn-prev dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
               <span class="dcf-sr-only">Previous Image</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 30 36"
-                class="dcf-fill-current
-                dcf-h-4 dcf-w-4 dcf-d-block"
-                style="rotate: 180deg;"
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block" style="rotate: 180deg;" viewBox="0 0 30 36">
                 <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
                 C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
                 L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
@@ -130,24 +112,9 @@ export class DCFGalleryImage {
         </div>
         <div class="dcf-gallery-image-modal-next dcf-d-flex dcf-ai-center dcf-p-4">
           <button
-          class="
-            dcf-btn
-            dcf-btn-secondary
-            dcf-gallery-image-modal-btn-next
-            dcf-circle
-            dcf-p-0
-            dcf-h-7
-            dcf-w-7
-            dcf-d-flex
-            dcf-jc-center
-            dcf-ai-center
-          ">
+          class="dcf-btn dcf-btn-secondary dcf-gallery-image-modal-btn-next dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
             <span class="dcf-sr-only">Next Image</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 30 36"
-              class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block" viewBox="0 0 30 36">
               <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
               C3.5,2,3.2,2.9,3.3,3.8c0.1,1,0.5,1.9,1.2,2.5L17.7,18
               L4.5,29.7c-0.7,0.6-1.2,1.5-1.2,2.5c-0.1,1,0.3,1.9,0.9,2.6
@@ -157,26 +124,10 @@ export class DCFGalleryImage {
           </button>
         </div>
         <div class="dcf-gallery-image-modal-thumbnails dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-4 dcf-pb-4">
-          <ul
-            role="tablist"
-            aria-label="images"
-            class="
-              dcf-gallery-image-modal-list
-              dcf-d-flex
-              dcf-flex-nowrap
-              dcf-mb-0
-              dcf-pr-6
-              dcf-pl-6
-              dcf-gap-3
-            "
-            style="list-style: none;"
-          ></ul>
+          <ul class="dcf-gallery-image-modal-list dcf-d-flex dcf-flex-nowrap dcf-mb-0 dcf-p-0 dcf-col-gap-3" style="list-style: none;" aria-label="images" role="tablist">
+          </ul>
         </div>
-        <figure
-          role="tabpanel"
-          aria-live="polite"
-          class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto"
-        >
+        <figure class="dcf-d-flex dcf-flex-nowrap dcf-flex-col dcf-ai-center dcf-jc-center dcf-w-100% dcf-m-auto" role="tabpanel" aria-live="polite">
         </figure>
       </div>
     </div>
@@ -257,14 +208,14 @@ export class DCFGalleryImage {
       singleCopiedImage.classList.add('dcf-ratio-child', 'dcf-obj-fit-cover');
       list.innerHTML = `
         ${list.innerHTML}
-        <li
-          role="tab"
+        <li class="dcf-flex-shrink-0 dcf-mb-0" role="tab"
           aria-selected="${isSelected ? 'true' : 'false'}"
           aria-label="image ${index + DCFUtility.magicNumbers('int1')}"
           tabindex="${isSelected ? '0' : '-1'}"
-          class="dcf-flex-shrink-0 dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-mb-0 dcf-rounded"
         >
-          ${singleCopiedImage.outerHTML}
+          <div class="dcf-ratio dcf-ratio-1x1 dcf-w-9 dcf-rounded">
+            ${singleCopiedImage.outerHTML}
+          </div>
         </li>
       `;
     });
