@@ -1,9 +1,40 @@
+.dcf-search-and-select input:focus {
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+.dcf-search-and-select button[aria-expanded="true"] svg{
+    rotate: 180deg;
+}
+
+.dcf-search-and-select .dcf-search-and-select-visual-focus {
+    border: $border-width-input $border-style-input $border-color-input-focus;
+}
+
+.dcf-search-and-select .dcf-search-and-select-visual-hover,
+.dcf-search-and-select-item:hover {
+    background-color: $border-color-input-focus;
+}
+
 .dcf-search-and-select-search-area {
     max-height: 10rem;
     grid-template-columns: 1fr auto;
     grid-template-rows: 1fr auto;
+    background-color: $bg-color-input;
+    border: $border-width-input $border-style-input $border-color-input;
+    @if ($border-radius-input-roundrect) {
+        border-top-left-radius: $roundrect;
+        border-top-right-radius: $roundrect;
+        border-bottom-right-radius: $roundrect;
+    } @else {
+        border-radius: 0;
+    }
 }
 
+.dcf-search-and-select-search-area .dcf-search-and-select-selected-items:empty {
+    padding: 0 !important;
+}
 .dcf-search-and-select-search-area .dcf-search-and-select-selected-items {
     list-style: none;
 }
@@ -16,6 +47,56 @@
     transform: translateY(-50%);
 }
 
+
+
 .dcf-search-and-select-available-items {
-    background-color: blue;
+    background-color: $bg-color-input;
+    border: $border-width-input $border-style-input $border-color-input;
+    @if ($border-radius-input-roundrect) {
+        border-top-left-radius: $roundrect;
+        border-top-right-radius: $roundrect;
+        border-bottom-right-radius: $roundrect;
+    } @else {
+        border-radius: 0;
+    }
+    max-height: 15rem;
+    overflow-x: visible;
+    overflow-y: auto;
+}
+
+.dcf-search-and-select-available-items,
+.dcf-search-and-select-available-items ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.dcf-search-and-select-available-items li {
+    margin: 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    padding-right: 2em;
+    padding-left: 1em;
+}
+
+.dcf-search-and-select-available-items li {
+    border-bottom: solid 1px $border-color-input;
+}
+.dcf-search-and-select-available-items ul:last-child li:last-child {
+    border-bottom: none;
+}
+
+.dcf-search-and-select-available-items li[role="presentation"] {
+    background-color: green;
+    font-weight: bold;
+}
+
+.dcf-search-and-select-available-items li[role="presentation"] ~ li {
+    padding-left: 2em;
+}
+
+.dcf-search-and-select-available-items li .dcf-search-and-select-item-indicator {
+    display: none;
+}
+.dcf-search-and-select-available-items li[aria-selected="true"] .dcf-search-and-select-item-indicator {
+    display: block;
 }
