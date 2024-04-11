@@ -87,6 +87,8 @@ class DCFSearchSelectClass {
           class="dcf-search-and-select-selected-items dcf-d-flex dcf-flex-wrap dcf-gap-3 dcf-m-0 dcf-p-3"
           role="listbox"
           id=${ this.selectedItemsListID }
+          aria-activedescendant=""
+          aria-orientation="horizontal"
         ></ul>
         <div class="dcf-search-and-select-open-btn dcf-sticky dcf-top-50% dcf-h-0 dcf-pl-1 dcf-pr-1">
           <button
@@ -224,7 +226,7 @@ class DCFSearchSelectClass {
             aria-disabled="false"
             data-value="${ singleItem.value }"
             data-id="${ singleItem.id }"
-            id="${ `${singleItem.id}-available` }"
+            id="${ `${ singleItem.id }-available` }"
           >
             <span class="dcf-search-and-select-item-label">${ singleItem.label}</span>
             <span class="dcf-search-and-select-item-indicator" aria-hidden="true">✅</span>
@@ -236,6 +238,39 @@ class DCFSearchSelectClass {
     });
 
     return availableItems;
+  }
+
+  appendNewSelectedItem(singleAvailableItem) {
+    let newSelectedItem = document.createElement('li');
+    newSelectedItem.dataset.id = singleAvailableItem.dataset.id;
+    newSelectedItem.setAttribute('id', `${ singleAvailableItem.dataset.id }-selected`);
+    newSelectedItem.classList.add(
+      'dcf-search-and-select-selected-item',
+      'dcf-d-flex',
+      'dcf-flex-nowrap',
+      'dcf-m-0',
+      'dcf-ai-center',
+      'dcf-jc-center',
+      'dcf-rounded'
+    );
+    newSelectedItem.innerHTML = `
+      <button
+        class="dcf-search-and-select-selected-item-remove-btn dcf-btn dcf-btn-secondary dcf-m-0 dcf-p-1 dcf-h-100% dcf-sharp dcf-rounded-left"
+        type="button"
+        tabindex="-1"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" class="dcf-fill-current dcf-w-4 dcf-h-4 dcf-d-block">
+          <path d="M25.4,22.6L15.8,13l9.6-9.6C25.8,3,26,2.5,26,2s-0.2-1-0.6-1.4c-0.8-0.8-2.1-0.8-2.8,0L13,10.2L3.4,0.6
+            c-0.8-0.8-2-0.8-2.8,0c-0.8,0.8-0.8,2,0,2.8l9.6,9.6l-9.6,9.6C0.2,23,0,23.5,0,24c0,0.5,0.2,1,0.6,1.4C1,25.8,1.5,26,2,26
+            c0.5,0,1-0.2,1.4-0.6l9.6-9.6l9.6,9.6C23,25.8,23.5,26,24,26c0,0,0,0,0,0c0.5,0,1-0.2,1.4-0.6C25.8,25,26,24.5,26,24
+            C26,23.5,25.8,23,25.4,22.6z"/>
+        </svg>
+      </button>
+      <span class="dcf-rounded-right dcf-b-1 dcf-b-solid dcf-p-1">
+        ${ singleAvailableItem.querySelector('.dcf-search-and-select-item-label').innerText }
+      </span>
+    `;
+    this.selectedItemsListElement.append(newSelectedItem);
   }
 
   /**
@@ -277,9 +312,9 @@ class DCFSearchSelectClass {
           const currentItemElement = this.getAvailableItemActiveDescendant();
           if (currentItemElement !== false) {
             if (this.isAvailableItemSelected(currentItemElement)) {
-              this.removeItem(currentItemElement);
+              this.removeAvailableItem(currentItemElement);
             } else {
-              this.selectItem(currentItemElement);
+              this.selectAvailableItem(currentItemElement);
             }
           }
         }
@@ -407,13 +442,32 @@ class DCFSearchSelectClass {
       }
 
       if (this.isAvailableItemSelected(closestItem)) {
-        this.removeItem(closestItem);
+        this.removeAvailableItem(closestItem);
       } else {
-        this.selectItem(closestItem);
+        this.selectAvailableItem(closestItem);
       }
       this.inputElement.focus();
       this.setVisualFocusOn(this.availableItemsListElement);
       this.setAvailableItemActiveDescendant(closestItem);
+    });
+
+    this.selectedItemsListElement.addEventListener('click', (event) => {
+      const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
+      if (closestSelectedItem === null) {
+        return;
+      }
+
+      const closestDeleteButton = event.target.closest('.dcf-search-and-select-selected-item-remove-btn');
+      if (closestDeleteButton !== null) {
+        this.removeSelectedItem(closestSelectedItem);
+        this.setAvailableItemActiveDescendant(false);
+        event.stopPropagation();
+        return;
+      }
+
+      this.setVisualFocusOn(closestSelectedItem);
+      this.setAvailableItemActiveDescendant(false);
+      event.stopPropagation();
     });
   }
 
@@ -534,22 +588,37 @@ class DCFSearchSelectClass {
     return this.listOfAvailableItems[this.listOfAvailableItems.length - 1];
   }
 
-  selectItem(itemToSelect) {
+  selectAvailableItem(itemToSelect) {
     itemToSelect.setAttribute('aria-selected', 'true');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToSelect.dataset.value) {
         singleOption.setAttribute('selected', 'selected');
       }
     });
+    this.appendNewSelectedItem(itemToSelect);
   }
 
-  removeItem(itemToRemove) {
+  removeAvailableItem(itemToRemove) {
     itemToRemove.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToRemove.dataset.value) {
         singleOption.removeAttribute('selected');
       }
     });
+    this.selectedItemsListElement.querySelectorAll(`li[data-id]="${itemToRemove.dataset.id}"`).forEach((singleSelectedItem) => {
+      singleSelectedItem.delete();
+    });
+  }
+
+  removeSelectedItem(itemToRemove) {
+    const availableItem = this.availableItemsListElement.querySelector(`li[data-id="${ itemToRemove.dataset.id }"]`);
+    availableItem.setAttribute('aria-selected', 'false');
+    this.selectElement.querySelectorAll('option').forEach((singleOption) => {
+      if (singleOption.value === availableItem.dataset.value) {
+        singleOption.removeAttribute('selected');
+      }
+    });
+    itemToRemove.remove();
   }
 
   isAvailableItemSelected(itemToCheck) {
@@ -656,69 +725,4 @@ export class DCFSearchSelect {
       this.selectsObjs.push(new DCFSearchSelectClass(selectElement));
     });
   }
-
-  // selectItem(selectedItemId) {
-  //   const availableItem = document.querySelector(`.dcf-search-and-select-item[data-id="${ selectedItemId }"]`);
-  //   const searchAndSelectElement = availableItem.closest('.dcf-search-and-select');
-  //   const selectedList = searchAndSelectElement.querySelector('.dcf-search-and-select-selected-items');
-  //   const originalSelect = document.getElementById(searchAndSelectElement.dataset.for);
-  //   const originalSelectOptions = originalSelect.querySelectorAll('option');
-
-  //   availableItem.setAttribute('aria-selected', 'true');
-
-  //   let newSelectedItem = document.createElement('li');
-  //   newSelectedItem.dataset.id = selectedItemId;
-  //   newSelectedItem.setAttribute('id', selectedItemId.replace('-available', '-selected'));
-  //   newSelectedItem.classList.add('dcf-search-and-select-selected-item', 'dcf-d-flex', 'dcf-flex-nowrap', 'dcf-m-0', 'dcf-ai-center', 'dcf-jc-center');
-  //   newSelectedItem.innerHTML = `
-  //     <button class="dcf-btn dcf-btn-secondary dcf-m-0 dcf-p-1 dcf-h-100% dcf-sharp dcf-rounded-left" type="button" tabindex="0">
-  //       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" class="dcf-fill-current dcf-w-4 dcf-h-4 dcf-d-block">
-  //         <path d="M25.4,22.6L15.8,13l9.6-9.6C25.8,3,26,2.5,26,2s-0.2-1-0.6-1.4c-0.8-0.8-2.1-0.8-2.8,0L13,10.2L3.4,0.6
-  //           c-0.8-0.8-2-0.8-2.8,0c-0.8,0.8-0.8,2,0,2.8l9.6,9.6l-9.6,9.6C0.2,23,0,23.5,0,24c0,0.5,0.2,1,0.6,1.4C1,25.8,1.5,26,2,26
-  //           c0.5,0,1-0.2,1.4-0.6l9.6-9.6l9.6,9.6C23,25.8,23.5,26,24,26c0,0,0,0,0,0c0.5,0,1-0.2,1.4-0.6C25.8,25,26,24.5,26,24
-  //           C26,23.5,25.8,23,25.4,22.6z"/>
-  //       </svg>
-  //     </button>
-  //     <span class="dcf-rounded-right dcf-b-1 dcf-b-solid dcf-p-1">
-  //       ${ availableItem.querySelector('.dcf-search-and-select-item-label').innerText }
-  //     </span>
-  //   `;
-  //   selectedList.append(newSelectedItem);
-
-  //   const selectedItems = document.querySelectorAll(`.dcf-search-and-select-selected-item[data-id="${ selectedItemId }"]`);
-  //   selectedItems.forEach((singleSelectedItem) => {
-  //     singleSelectedItem.addEventListener('click', () => {
-  //       this.removeItem(singleSelectedItem.dataset.id);
-  //     });
-  //   });
-
-  //   originalSelectOptions.forEach((singleOption) => {
-  //     if (singleOption.value === availableItem.dataset.value) {
-  //       singleOption.setAttribute('selected', 'selected');
-  //     }
-  //   });
-  // }
-  // removeItem(removedItemId) {
-  //   const availableItem = document.querySelector(`.dcf-search-and-select-item[data-id="${ removedItemId }"]`);
-  //   const selectedItem = document.querySelector(`.dcf-search-and-select-selected-item[data-id="${ removedItemId }"]`);
-  //   const searchAndSelectElement = availableItem.closest('.dcf-search-and-select');
-  //   const selectedList = searchAndSelectElement.querySelector('.dcf-search-and-select-selected-items');
-  //   const originalSelect = document.getElementById(searchAndSelectElement.dataset.for);
-  //   const originalSelectOptions = originalSelect.querySelectorAll('option');
-
-  //   availableItem.setAttribute('aria-selected', 'false');
-
-  //   selectedItem.remove();
-
-  //   // Removes whitespace and lets the css for :empty work correctly
-  //   if (selectedList.querySelectorAll('.dcf-search-and-select-selected-item').length === DCFUtility.magicNumbers('int0')) {
-  //     selectedList.innerHTML = '';
-  //   }
-
-  //   originalSelectOptions.forEach((singleOption) => {
-  //     if (singleOption.value === availableItem.dataset.value) {
-  //       singleOption.removeAttribute('selected');
-  //     }
-  //   });
-  // }
 }
