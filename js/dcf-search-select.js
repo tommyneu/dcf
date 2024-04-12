@@ -225,7 +225,7 @@ class DCFSearchSelectClass {
         groupedItems.innerHTML = `
           ${ groupedItems.innerHTML }
           <li
-            class="dcf-search-and-select-item dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-between dcf-ai-center"
+            class="dcf-search-and-select-item dcf-search-and-select-clickable dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-between dcf-ai-center"
             role="option"
             aria-selected="false"
             aria-disabled="false"
@@ -234,7 +234,13 @@ class DCFSearchSelectClass {
             id="${ `${ singleItem.id }-available` }"
           >
             <span class="dcf-search-and-select-item-label">${ singleItem.label}</span>
-            <span class="dcf-search-and-select-item-indicator" aria-hidden="true">✅</span>
+            <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block">
+                <path d="M31,0.4C30.6,0.1,30-0.1,29.4,0c-0.6,0.1-1.1,0.4-1.5,0.9L10.1,26.3L3.8,20c-0.4-0.4-1-0.6-1.6-0.6c0,0,0,0,0,0
+                c-0.6,0-1.2,0.2-1.6,0.6C0.2,20.5,0,21,0,21.6c0,0.6,0.2,1.2,0.7,1.6l8.1,8.1c0.4,0.4,1,0.7,1.6,0.7c0.7,0,1.4-0.4,1.8-1L31.6,3.5
+                C32.3,2.5,32.1,1.1,31,0.4z"/>
+              </svg>
+            </span>
           </li>
         `;
       });
@@ -256,7 +262,8 @@ class DCFSearchSelectClass {
       'dcf-m-0',
       'dcf-ai-center',
       'dcf-jc-center',
-      'dcf-rounded'
+      'dcf-rounded',
+      'dcf-search-and-select-clickable'
     );
     newSelectedItem.innerHTML = `
       <button
@@ -288,6 +295,7 @@ class DCFSearchSelectClass {
     document.body.addEventListener('pointerup', (event) => {
       if (!this.searchAndSelectElement.contains(event.target)) {
         this.closeAvailableItems();
+        this.setVisualFocusOn(false);
       }
     }, true);
 
@@ -304,7 +312,6 @@ class DCFSearchSelectClass {
 
     this.inputElement.addEventListener('focus', () => {
       this.setVisualFocusOn(this.searchAreaElement);
-      this.setAvailableItemActiveDescendant(false);
     });
 
     this.inputElement.addEventListener('blur', () => {
@@ -327,6 +334,14 @@ class DCFSearchSelectClass {
               this.selectAvailableItem(currentItemElement);
             }
           }
+        } else {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          this.setVisualFocusOn(this.availableItemsListElement);
+          this.setAvailableItemActiveDescendant(this.getFirstAvailableItem());
+          this.scrollActiveAvailableItemInView();
         }
         preventDefault = true;
         break;
@@ -346,9 +361,11 @@ class DCFSearchSelectClass {
           if (!this.visualFocusOnAvailableItems()) {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getFirstAvailableItem());
+            this.scrollActiveAvailableItemInView();
           } else {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getNextAvailableItem());
+            this.scrollActiveAvailableItemInView();
           }
         }
         preventDefault = true;
@@ -378,9 +395,11 @@ class DCFSearchSelectClass {
           if (!this.visualFocusOnAvailableItems()) {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getLastAvailableItem());
+            this.scrollActiveAvailableItemInView();
           } else {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getPreviousAvailableItem());
+            this.scrollActiveAvailableItemInView();
           }
         }
         preventDefault = true;
@@ -424,6 +443,7 @@ class DCFSearchSelectClass {
       case 'Backspace':
         this.setVisualFocusOn(this.searchAreaElement);
         this.filterAvailableItems();
+        this.setAvailableItemActiveDescendant(false);
         preventDefault = true;
         break;
 
@@ -469,8 +489,25 @@ class DCFSearchSelectClass {
       this.setAvailableItemActiveDescendant(closestItem);
     });
 
+    this.availableItemsListElement.addEventListener('pointermove', (event) => {
+      const currentItem = this.getAvailableItemActiveDescendant();
+      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      if (closestItem === null) {
+        return;
+      }
+
+      if (currentItem === false || !closestItem.isSameNode(currentItem)) {
+        this.setAvailableItemActiveDescendant(closestItem);
+      }
+    });
+
+    this.availableItemsListElement.addEventListener('pointerout', (event) => {
+      if (this.availableItemsListElement.isSameNode(event.target)) {
+        this.setAvailableItemActiveDescendant(false);
+      }
+    });
+
     this.selectedItemsListElement.addEventListener('click', (event) => {
-      console.log('Click', event.target);
       const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
       if (closestSelectedItem === null) {
         return;
@@ -478,17 +515,37 @@ class DCFSearchSelectClass {
 
       const closestDeleteButton = event.target.closest('.dcf-search-and-select-selected-item-remove-btn');
       if (closestDeleteButton !== null) {
+        this.selectedItemsListElement.focus();
         this.removeSelectedItem(closestSelectedItem);
         this.setAvailableItemActiveDescendant(false);
         event.stopPropagation();
-        this.selectedItemsListElement.focus();
         return;
       }
 
       this.setVisualFocusOn(this.selectedItemsListElement);
-      this.setSelectedItemActiveDescendant(closestSelectedItem);
       this.setAvailableItemActiveDescendant(false);
+      this.setSelectedItemActiveDescendant(closestSelectedItem);
       event.stopPropagation();
+    });
+
+    this.selectedItemsListElement.addEventListener('pointermove', (event) => {
+      const currentItem = this.getSelectedItemActiveDescendant();
+      const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
+      if (closestSelectedItem === null) {
+        return;
+      }
+
+      if (currentItem === false || !closestSelectedItem.isSameNode(currentItem)) {
+        this.setSelectedItemActiveDescendant(closestSelectedItem);
+      }
+      event.stopPropagation();
+    });
+
+    this.selectedItemsListElement.addEventListener('pointerout', (event) => {
+      if (this.selectedItemsListElement.isSameNode(event.target)) {
+        this.setSelectedItemActiveDescendant(false);
+        event.stopPropagation();
+      }
     });
 
     this.selectedItemsListElement.addEventListener('focus', () => {
@@ -509,32 +566,36 @@ class DCFSearchSelectClass {
       case 'Left':
       case 'ArrowLeft':
         if (currentItem === false) {
-          this.setSelectedItemActiveDescendant(this.getLastAvailableItem());
+          this.setSelectedItemActiveDescendant(this.getLastSelectedItem());
         }
         this.setVisualFocusOn(this.selectedItemsListElement);
         this.setSelectedItemActiveDescendant(this.getPreviousSelectedItem());
+        this.scrollActiveSelectedItemInView();
         preventDefault = true;
         break;
 
       case 'Right':
       case 'ArrowRight':
         if (currentItem === false) {
-          this.setSelectedItemActiveDescendant(this.getFirstAvailableItem());
+          this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
         }
         this.setVisualFocusOn(this.selectedItemsListElement);
         this.setSelectedItemActiveDescendant(this.getNextSelectedItem());
+        this.scrollActiveSelectedItemInView();
         preventDefault = true;
         break;
 
       case 'Home':
         this.setVisualFocusOn(this.selectedItemsListElement);
         this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
+        this.scrollActiveSelectedItemInView();
         preventDefault = true;
         break;
 
       case 'End':
         this.setVisualFocusOn(this.selectedItemsListElement);
         this.setSelectedItemActiveDescendant(this.getLastSelectedItem());
+        this.scrollActiveSelectedItemInView();
         preventDefault = true;
         break;
 
@@ -588,7 +649,7 @@ class DCFSearchSelectClass {
   }
 
   visualFocusOnAvailableItems() {
-    return this.availableItemsListElement.classList.contains('dcf-search-and-select-visual-focus');
+    return this.availableItemsListElement.dataset.focused === 'true';
   }
 
   visualFocusOnSelectedItems() {
@@ -596,19 +657,28 @@ class DCFSearchSelectClass {
   }
 
   setVisualFocusOn(elementToFocus) {
-    if (elementToFocus !== false && this.selectedItemsListElement.isSameNode(elementToFocus)) {
+    if (this.currentFocus !== null && this.selectedItemsListElement.isSameNode(this.currentFocus)) {
       this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
       delete this.selectedItemsListElement.dataset.focused;
+    } else if (this.currentFocus !== null && this.availableItemsListElement.isSameNode(this.currentFocus)) {
+      this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
+      delete this.availableItemsListElement.dataset.focused;
     } else if (this.currentFocus !== null) {
       this.currentFocus.classList.remove('dcf-search-and-select-visual-focus');
+      delete this.currentFocus.dataset.focused;
     }
 
     if (elementToFocus !== false && this.selectedItemsListElement.isSameNode(elementToFocus)) {
       this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
       this.selectedItemsListElement.dataset.focused = 'true';
       this.currentFocus = elementToFocus;
+    } else if (elementToFocus !== false && this.availableItemsListElement.isSameNode(elementToFocus)) {
+      this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
+      this.availableItemsListElement.dataset.focused = 'true';
+      this.currentFocus = elementToFocus;
     } else if (elementToFocus !== false) {
       elementToFocus.classList.add('dcf-search-and-select-visual-focus');
+      elementToFocus.dataset.focused = 'true';
       this.currentFocus = elementToFocus;
     } else {
       this.currentFocus = null;
@@ -641,15 +711,19 @@ class DCFSearchSelectClass {
   }
 
   setAvailableItemActiveDescendant(itemToSet) {
-    if (itemToSet !== false && this.visualFocusOnAvailableItems()) {
+    if (itemToSet !== false) {
       this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
       this.setVisualHover(itemToSet);
-      if (!this.isAvailableItemInView(itemToSet)) {
-        itemToSet.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
     } else {
       this.setVisualHover(false);
       this.inputElement.setAttribute('aria-activedescendant', '');
+    }
+  }
+
+  scrollActiveAvailableItemInView() {
+    const currentItemElement = this.getAvailableItemActiveDescendant();
+    if (!this.isAvailableItemInView(currentItemElement)) {
+      currentItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
@@ -666,16 +740,19 @@ class DCFSearchSelectClass {
   }
 
   setSelectedItemActiveDescendant(itemToSet) {
-    console.log(itemToSet);
-    if (itemToSet !== false && this.visualFocusOnSelectedItems()) {
+    if (itemToSet !== false) {
       this.selectedItemsListElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
       this.setVisualHover(itemToSet);
-      if (!this.isSelectedItemInView(itemToSet)) {
-        itemToSet.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
     } else {
       this.setVisualHover(false);
       this.selectedItemsListElement.setAttribute('aria-activedescendant', '');
+    }
+  }
+
+  scrollActiveSelectedItemInView() {
+    const currentItemElement = this.getSelectedItemActiveDescendant();
+    if (!this.isSelectedItemInView(currentItemElement)) {
+      currentItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
 
@@ -783,7 +860,6 @@ class DCFSearchSelectClass {
         singleOption.removeAttribute('selected');
       }
     });
-    console.log(this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`));
     this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`).forEach((singleSelectedItem) => {
       singleSelectedItem.remove();
     });
@@ -793,7 +869,6 @@ class DCFSearchSelectClass {
   }
 
   removeSelectedItem(itemToRemove) {
-    console.log(itemToRemove);
     const availableItem = this.availableItemsListElement.querySelector(`li[data-id="${ itemToRemove.dataset.id }"]`);
     availableItem.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -833,6 +908,7 @@ class DCFSearchSelectClass {
   }
 
   filterAvailableItems() {
+    //TODO: Fix this function
     this.availableItemsListElement.innerHTML = this.unfilteredAvailableItemsElement.innerHTML;
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');

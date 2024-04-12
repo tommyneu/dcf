@@ -13,17 +13,14 @@
     rotate: 180deg;
 }
 
+.dcf-search-and-select .dcf-search-and-select-visual-hover,
 .dcf-search-and-select .dcf-search-and-select-visual-focus {
-    border: $border-width-input $border-style-input $border-color-input-focus;
+    outline: $border-width-input $border-style-input $border-color-input-focus;
 }
 
-.dcf-search-and-select .dcf-search-and-select-visual-hover {
-    background-color: $border-color-input-focus;
-}
-
-.dcf-search-and-select-item:hover,
-.dcf-search-and-select-selected-item:hover {
-    background-color: red;
+.dcf-search-and-select .dcf-search-and-select-clickable {
+    appearance: none;
+    cursor: pointer;
 }
 
 .dcf-search-and-select-search-area {
@@ -95,7 +92,7 @@
 }
 
 .dcf-search-and-select-available-items li[role="presentation"] {
-    background-color: green;
+    background-color: $bg-color-input-disabled;
     font-weight: bold;
 }
 
