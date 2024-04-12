@@ -4,6 +4,11 @@
     outline: none !important;
 }
 
+.dcf-search-and-select .dcf-search-and-select-selected-items:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 .dcf-search-and-select button[aria-expanded="true"] svg{
     rotate: 180deg;
 }
@@ -12,9 +17,13 @@
     border: $border-width-input $border-style-input $border-color-input-focus;
 }
 
-.dcf-search-and-select .dcf-search-and-select-visual-hover,
-.dcf-search-and-select-item:hover {
+.dcf-search-and-select .dcf-search-and-select-visual-hover {
     background-color: $border-color-input-focus;
+}
+
+.dcf-search-and-select-item:hover,
+.dcf-search-and-select-selected-item:hover {
+    background-color: red;
 }
 
 .dcf-search-and-select-search-area {

@@ -54,6 +54,7 @@ class DCFSearchSelectClass {
     this.inputID = this.uuid.concat('-search-and-select-input');
     this.availableItemsListID = this.uuid.concat('-search-and-select-available-items-list');
     this.selectedItemsListID = this.uuid.concat('-search-and-select-selected-items-list');
+    this.selectedItemsHelpID = this.uuid.concat('-search-and-select-selected-items-list-help');
 
     this.labelElement.setAttribute('id', this.labelID);
     this.labelElement.setAttribute('for', this.inputID);
@@ -83,10 +84,13 @@ class DCFSearchSelectClass {
           dcf-overflow-y-auto
         "
       >
+        <span id="${ this.selectedItemsHelpID }" class="dcf-sr-only">Press Delete or Backspace to Remove.</span>
         <ul
           class="dcf-search-and-select-selected-items dcf-d-flex dcf-flex-wrap dcf-gap-3 dcf-m-0 dcf-p-3"
           role="listbox"
+          aria-describedby="${ this.selectedItemsHelpID }"
           id=${ this.selectedItemsListID }
+          tabindex="-1"
           aria-activedescendant=""
           aria-orientation="horizontal"
         ></ul>
@@ -117,6 +121,7 @@ class DCFSearchSelectClass {
           type="text"
           role="combobox"
           id=${ this.inputID }
+          aria-haspopup="listbox"
           aria-autocomplete="list"
           aria-expanded="false"
           aria-controls="${ this.availableItemsListID }"
@@ -271,6 +276,9 @@ class DCFSearchSelectClass {
       </span>
     `;
     this.selectedItemsListElement.append(newSelectedItem);
+    if (!this.isSelectedItemInView(newSelectedItem)) {
+      newSelectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   /**
@@ -284,11 +292,13 @@ class DCFSearchSelectClass {
     }, true);
 
     this.searchAreaElement.addEventListener('click', () => {
+      this.setVisualFocusOn(this.searchAreaElement);
+      this.inputElement.focus();
       if (this.isAvailableItemsOpen()) {
         this.closeAvailableItems();
       } else {
         this.filterAvailableItems();
-        this.openAvailableItems(true);
+        this.openAvailableItems();
       }
     });
 
@@ -308,7 +318,7 @@ class DCFSearchSelectClass {
 
       switch (event.code) {
       case 'Enter':
-        if (this.visualFocusOnAvailableItems) {
+        if (this.visualFocusOnAvailableItems()) {
           const currentItemElement = this.getAvailableItemActiveDescendant();
           if (currentItemElement !== false) {
             if (this.isAvailableItemSelected(currentItemElement)) {
@@ -324,12 +334,16 @@ class DCFSearchSelectClass {
       case 'Down':
       case 'ArrowDown':
         if (altKey) {
-          this.filterAvailableItems();
-          this.openAvailableItems();
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
         } else {
-          this.filterAvailableItems();
-          this.openAvailableItems();
-          if (!this.visualFocusOnAvailableItems) {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          if (!this.visualFocusOnAvailableItems()) {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getFirstAvailableItem());
           } else {
@@ -352,12 +366,16 @@ class DCFSearchSelectClass {
       case 'Up':
       case 'ArrowUp':
         if (altKey) {
-          this.filterAvailableItems();
-          this.openAvailableItems();
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
         } else {
-          this.filterAvailableItems();
-          this.openAvailableItems();
-          if (!this.visualFocusOnAvailableItems) {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          if (!this.visualFocusOnAvailableItems()) {
             this.setVisualFocusOn(this.availableItemsListElement);
             this.setAvailableItemActiveDescendant(this.getLastAvailableItem());
           } else {
@@ -452,6 +470,7 @@ class DCFSearchSelectClass {
     });
 
     this.selectedItemsListElement.addEventListener('click', (event) => {
+      console.log('Click', event.target);
       const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
       if (closestSelectedItem === null) {
         return;
@@ -462,12 +481,83 @@ class DCFSearchSelectClass {
         this.removeSelectedItem(closestSelectedItem);
         this.setAvailableItemActiveDescendant(false);
         event.stopPropagation();
+        this.selectedItemsListElement.focus();
         return;
       }
 
-      this.setVisualFocusOn(closestSelectedItem);
+      this.setVisualFocusOn(this.selectedItemsListElement);
+      this.setSelectedItemActiveDescendant(closestSelectedItem);
       this.setAvailableItemActiveDescendant(false);
       event.stopPropagation();
+    });
+
+    this.selectedItemsListElement.addEventListener('focus', () => {
+      this.setVisualFocusOn(this.selectedItemsListElement);
+    });
+
+    this.selectedItemsListElement.addEventListener('blur', () => {
+      this.setVisualFocusOn(false);
+      this.setSelectedItemActiveDescendant(false);
+    });
+
+    this.selectedItemsListElement.addEventListener('keydown', (event) => {
+      let preventDefault = false;
+      const currentItem = this.getSelectedItemActiveDescendant();
+      const firstItem = this.getFirstSelectedItem();
+
+      switch (event.code) {
+      case 'Left':
+      case 'ArrowLeft':
+        if (currentItem === false) {
+          this.setSelectedItemActiveDescendant(this.getLastAvailableItem());
+        }
+        this.setVisualFocusOn(this.selectedItemsListElement);
+        this.setSelectedItemActiveDescendant(this.getPreviousSelectedItem());
+        preventDefault = true;
+        break;
+
+      case 'Right':
+      case 'ArrowRight':
+        if (currentItem === false) {
+          this.setSelectedItemActiveDescendant(this.getFirstAvailableItem());
+        }
+        this.setVisualFocusOn(this.selectedItemsListElement);
+        this.setSelectedItemActiveDescendant(this.getNextSelectedItem());
+        preventDefault = true;
+        break;
+
+      case 'Home':
+        this.setVisualFocusOn(this.selectedItemsListElement);
+        this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
+        preventDefault = true;
+        break;
+
+      case 'End':
+        this.setVisualFocusOn(this.selectedItemsListElement);
+        this.setSelectedItemActiveDescendant(this.getLastSelectedItem());
+        preventDefault = true;
+        break;
+
+      case 'Backspace':
+      case 'Delete':
+        if (firstItem.isSameNode(currentItem)) {
+          this.removeSelectedItem(currentItem);
+          this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
+        } else {
+          this.setSelectedItemActiveDescendant(this.getPreviousSelectedItem());
+          this.removeSelectedItem(currentItem);
+        }
+        preventDefault = true;
+        break;
+
+      default:
+        break;
+      }
+
+      if (preventDefault) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
     });
   }
 
@@ -501,16 +591,40 @@ class DCFSearchSelectClass {
     return this.availableItemsListElement.classList.contains('dcf-search-and-select-visual-focus');
   }
 
+  visualFocusOnSelectedItems() {
+    return this.selectedItemsListElement.dataset.focused === 'true';
+  }
+
   setVisualFocusOn(elementToFocus) {
-    if (this.currentFocus !== null) {
+    if (elementToFocus !== false && this.selectedItemsListElement.isSameNode(elementToFocus)) {
+      this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
+      delete this.selectedItemsListElement.dataset.focused;
+    } else if (this.currentFocus !== null) {
       this.currentFocus.classList.remove('dcf-search-and-select-visual-focus');
     }
 
-    if (elementToFocus !== false) {
+    if (elementToFocus !== false && this.selectedItemsListElement.isSameNode(elementToFocus)) {
+      this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
+      this.selectedItemsListElement.dataset.focused = 'true';
+      this.currentFocus = elementToFocus;
+    } else if (elementToFocus !== false) {
       elementToFocus.classList.add('dcf-search-and-select-visual-focus');
       this.currentFocus = elementToFocus;
     } else {
       this.currentFocus = null;
+    }
+  }
+
+  setVisualHover(elementToHover) {
+    this.searchAndSelectElement.querySelectorAll('.dcf-search-and-select-visual-hover').forEach((elem) => {
+      elem.classList.remove('dcf-search-and-select-visual-hover');
+    });
+
+    if (elementToHover !== false) {
+      elementToHover.classList.add('dcf-search-and-select-visual-hover');
+      this.currentHover = elementToHover;
+    } else {
+      this.currentHover = null;
     }
   }
 
@@ -527,19 +641,41 @@ class DCFSearchSelectClass {
   }
 
   setAvailableItemActiveDescendant(itemToSet) {
-    const currentItemElement = this.getAvailableItemActiveDescendant();
-    if (currentItemElement !== false) {
-      currentItemElement.classList.remove('dcf-search-and-select-visual-hover');
-    }
-
     if (itemToSet !== false && this.visualFocusOnAvailableItems()) {
       this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
-      itemToSet.classList.add('dcf-search-and-select-visual-hover');
+      this.setVisualHover(itemToSet);
       if (!this.isAvailableItemInView(itemToSet)) {
         itemToSet.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     } else {
+      this.setVisualHover(false);
       this.inputElement.setAttribute('aria-activedescendant', '');
+    }
+  }
+
+  getSelectedItemActiveDescendant() {
+    const currentItemID = this.selectedItemsListElement.getAttribute('aria-activedescendant');
+    if (currentItemID !== null && currentItemID !== '') {
+      const currentItemElement = document.getElementById(currentItemID);
+      if (currentItemElement !== null) {
+        return currentItemElement;
+      }
+    }
+
+    return false;
+  }
+
+  setSelectedItemActiveDescendant(itemToSet) {
+    console.log(itemToSet);
+    if (itemToSet !== false && this.visualFocusOnSelectedItems()) {
+      this.selectedItemsListElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
+      this.setVisualHover(itemToSet);
+      if (!this.isSelectedItemInView(itemToSet)) {
+        itemToSet.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    } else {
+      this.setVisualHover(false);
+      this.selectedItemsListElement.setAttribute('aria-activedescendant', '');
     }
   }
 
@@ -588,6 +724,47 @@ class DCFSearchSelectClass {
     return this.listOfAvailableItems[this.listOfAvailableItems.length - 1];
   }
 
+  getNextSelectedItem() {
+    let currentItem = this.getSelectedItemActiveDescendant();
+    if (currentItem === false) {
+      return this.getFirstSelectedItem();
+    }
+
+    let nextElement = currentItem.nextElementSibling;
+    if (nextElement === null) {
+      return this.getFirstSelectedItem();
+    }
+
+    return nextElement;
+  }
+  getPreviousSelectedItem() {
+    let currentItem = this.getSelectedItemActiveDescendant();
+    if (currentItem === false) {
+      return this.getLastSelectedItem();
+    }
+
+    let nextElement = currentItem.previousElementSibling;
+    if (nextElement === null) {
+      return this.getLastSelectedItem();
+    }
+
+    return nextElement;
+  }
+  getFirstSelectedItem() {
+    const allSelectedItems = this.selectedItemsListElement.children;
+    if (allSelectedItems.length === 0) {
+      return false;
+    }
+    return allSelectedItems[0];
+  }
+  getLastSelectedItem() {
+    const allSelectedItems = this.selectedItemsListElement.children;
+    if (allSelectedItems.length === 0) {
+      return false;
+    }
+    return allSelectedItems[allSelectedItems.length - 1];
+  }
+
   selectAvailableItem(itemToSelect) {
     itemToSelect.setAttribute('aria-selected', 'true');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -596,6 +773,7 @@ class DCFSearchSelectClass {
       }
     });
     this.appendNewSelectedItem(itemToSelect);
+    this.selectedItemsListElement.setAttribute('tabindex', '0');
   }
 
   removeAvailableItem(itemToRemove) {
@@ -605,12 +783,17 @@ class DCFSearchSelectClass {
         singleOption.removeAttribute('selected');
       }
     });
-    this.selectedItemsListElement.querySelectorAll(`li[data-id]="${itemToRemove.dataset.id}"`).forEach((singleSelectedItem) => {
-      singleSelectedItem.delete();
+    console.log(this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`));
+    this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`).forEach((singleSelectedItem) => {
+      singleSelectedItem.remove();
     });
+    if (this.selectedItemsListElement.children.length === 0) {
+      this.selectedItemsListElement.setAttribute('tabindex', '-1');
+    }
   }
 
   removeSelectedItem(itemToRemove) {
+    console.log(itemToRemove);
     const availableItem = this.availableItemsListElement.querySelector(`li[data-id="${ itemToRemove.dataset.id }"]`);
     availableItem.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -619,6 +802,10 @@ class DCFSearchSelectClass {
       }
     });
     itemToRemove.remove();
+    if (this.selectedItemsListElement.children.length === 0) {
+      this.selectedItemsListElement.setAttribute('tabindex', '-1');
+      this.inputElement.focus();
+    }
   }
 
   isAvailableItemSelected(itemToCheck) {
@@ -628,6 +815,16 @@ class DCFSearchSelectClass {
   isAvailableItemInView(itemToCheck) {
     // Get the bounding client rect of the ul and li
     const listRect = this.availableItemsListElement.getBoundingClientRect();
+    const itemToCheckRect = itemToCheck.getBoundingClientRect();
+
+    // Check if the li is vertically in view within the ul
+    return itemToCheckRect.top >= listRect.top &&
+      itemToCheckRect.bottom <= listRect.bottom;
+  }
+
+  isSelectedItemInView(itemToCheck) {
+    // Get the bounding client rect of the ul and li
+    const listRect = this.searchAreaElement.getBoundingClientRect();
     const itemToCheckRect = itemToCheck.getBoundingClientRect();
 
     // Check if the li is vertically in view within the ul
