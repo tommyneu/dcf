@@ -70,7 +70,9 @@ class DCFSearchSelectClass {
       'dcf-w-100%',
       'dcf-absolute',
       'dcf-d-none',
-      'dcf-z-1'
+      'dcf-z-1',
+      'dcf-p-0',
+      'dcf-m-0'
     );
 
     this.searchAndSelectElement = document.createElement('div');
@@ -210,12 +212,18 @@ class DCFSearchSelectClass {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-item-group');
+      groupedItems.classList.add('dcf-search-and-select-item-group', 'dcf-m-0', 'dcf-p-0');
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
         ${ groupedItems.innerHTML }
-        <li role="presentation">
+        <li
+          class="
+            dcf-m-0
+            dcf-bold
+          "
+          role="presentation"
+        >
           ${ singleOptgroup.label }
         </li>
       `;
@@ -225,7 +233,17 @@ class DCFSearchSelectClass {
         groupedItems.innerHTML = `
           ${ groupedItems.innerHTML }
           <li
-            class="dcf-search-and-select-item dcf-search-and-select-clickable dcf-d-flex dcf-flex-row dcf-flex-nowrap dcf-jc-between dcf-ai-center"
+            class="
+              dcf-search-and-select-item
+              dcf-search-and-select-clickable
+              dcf-relative
+              dcf-d-flex
+              dcf-flex-row
+              dcf-flex-nowrap
+              dcf-jc-between
+              dcf-ai-center
+              dcf-m-0
+            "
             role="option"
             aria-selected="false"
             aria-disabled="false"

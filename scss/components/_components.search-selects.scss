@@ -1,11 +1,7 @@
-.dcf-search-and-select input:focus {
-    box-shadow: none !important;
-    border: none !important;
-    outline: none !important;
-}
-
+.dcf-search-and-select input:focus,
 .dcf-search-and-select .dcf-search-and-select-selected-items:focus {
     box-shadow: none !important;
+    border: none !important;
     outline: none !important;
 }
 
@@ -18,12 +14,34 @@
     outline: $border-width-input $border-style-input $border-color-input-focus;
 }
 
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:before,
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: calc(100% + #{$border-width-input});
+    width: $border-width-input;
+    background-color: $border-color-input-focus;
+}
+
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:after,
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: calc(100% + #{$border-width-input});
+    width: $border-width-input;
+    background-color: $border-color-input-focus;
+}
+
 .dcf-search-and-select .dcf-search-and-select-clickable {
     appearance: none;
     cursor: pointer;
 }
 
-.dcf-search-and-select-search-area {
+.dcf-search-and-select .dcf-search-and-select-search-area {
     max-height: 10rem;
     grid-template-columns: 1fr auto;
     grid-template-rows: 1fr auto;
@@ -38,30 +56,28 @@
     }
 }
 
-.dcf-search-and-select-search-area .dcf-search-and-select-selected-items:empty {
+.dcf-search-and-select .dcf-search-and-select-selected-items:empty {
     padding: 0 !important;
 }
-.dcf-search-and-select-search-area .dcf-search-and-select-selected-items {
+.dcf-search-and-select .dcf-search-and-select-available-items,
+.dcf-search-and-select .dcf-search-and-select-available-items ul,
+.dcf-search-and-select .dcf-search-and-select-selected-items {
     list-style: none;
 }
 
-.dcf-search-and-select-search-area .dcf-search-and-select-open-btn {
+.dcf-search-and-select .dcf-search-and-select-open-btn {
     grid-row: span 2 / span 2;
 }
 
-.dcf-search-and-select-search-area .dcf-search-and-select-open-btn button{
+.dcf-search-and-select .dcf-search-and-select-open-btn button{
     transform: translateY(-50%);
 }
 
-
-
-.dcf-search-and-select-available-items {
+.dcf-search-and-select .dcf-search-and-select-available-items {
     background-color: $bg-color-input;
     border: $border-width-input $border-style-input $border-color-input;
     @if ($border-radius-input-roundrect) {
-        border-top-left-radius: $roundrect;
-        border-top-right-radius: $roundrect;
-        border-bottom-right-radius: $roundrect;
+        border-radius: $roundrect;
     } @else {
         border-radius: 0;
     }
@@ -70,14 +86,7 @@
     overflow-y: auto;
 }
 
-.dcf-search-and-select-available-items,
-.dcf-search-and-select-available-items ul {
-    padding: 0;
-    margin: 0;
-    list-style: none;
-}
 .dcf-search-and-select-available-items li {
-    margin: 0;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
     padding-right: 2em;
@@ -93,7 +102,6 @@
 
 .dcf-search-and-select-available-items li[role="presentation"] {
     background-color: $bg-color-input-disabled;
-    font-weight: bold;
 }
 
 .dcf-search-and-select-available-items li[role="presentation"] ~ li {
