@@ -254,8 +254,11 @@ class DCFSearchSelectClass {
             <span class="dcf-search-and-select-item-label">${ singleItem.label}</span>
             <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block">
-                <path d="M31,0.4C30.6,0.1,30-0.1,29.4,0c-0.6,0.1-1.1,0.4-1.5,0.9L10.1,26.3L3.8,20c-0.4-0.4-1-0.6-1.6-0.6c0,0,0,0,0,0
-                c-0.6,0-1.2,0.2-1.6,0.6C0.2,20.5,0,21,0,21.6c0,0.6,0.2,1.2,0.7,1.6l8.1,8.1c0.4,0.4,1,0.7,1.6,0.7c0.7,0,1.4-0.4,1.8-1L31.6,3.5
+                <path d="M31,0.4C30.6,0.1,30-0.1,29.4,0c-0.6,0.1-1.1,0.4-1.5,0.9
+                L10.1,26.3L3.8,20c-0.4-0.4-1-0.6-1.6-0.6c0,0,0,0,0,0
+                c-0.6,0-1.2,0.2-1.6,0.6C0.2,20.5,0,21,0,21.6
+                c0,0.6,0.2,1.2,0.7,1.6l8.1,8.1c0.4,0.4,1,0.7,1.6,0.7
+                c0.7,0,1.4-0.4,1.8-1L31.6,3.5
                 C32.3,2.5,32.1,1.1,31,0.4z"/>
               </svg>
             </span>
@@ -285,7 +288,16 @@ class DCFSearchSelectClass {
     );
     newSelectedItem.innerHTML = `
       <button
-        class="dcf-search-and-select-selected-item-remove-btn dcf-btn dcf-btn-secondary dcf-m-0 dcf-p-1 dcf-h-100% dcf-sharp dcf-rounded-left"
+        class="
+          dcf-search-and-select-selected-item-remove-btn
+          dcf-btn
+          dcf-btn-secondary
+          dcf-m-0
+          dcf-p-1
+          dcf-h-100%
+          dcf-sharp
+          dcf-rounded-left
+        "
         type="button"
         tabindex="-1"
       >
@@ -428,7 +440,7 @@ class DCFSearchSelectClass {
         break;
 
       case 'Home':
-        this.inputElement.setSelectionRange(0, 0);
+        this.inputElement.setSelectionRange(DCFUtility.magicNumbers('int0'), DCFUtility.magicNumbers('int0'));
         preventDefault = true;
         break;
 
@@ -641,7 +653,7 @@ class DCFSearchSelectClass {
   }
 
   isPrintableCharacter(str) {
-    return str.length === 1 && str.match(/\S| /);
+    return str.length === DCFUtility.magicNumbers('int1') && str.match(/\S| /);
   }
 
   isAvailableItemsOpen() {
@@ -807,16 +819,16 @@ class DCFSearchSelectClass {
     return previousElement;
   }
   getFirstAvailableItem() {
-    if (this.listOfAvailableItems.length === 0) {
+    if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
-    return this.listOfAvailableItems[0];
+    return this.listOfAvailableItems[DCFUtility.magicNumbers('int0')];
   }
   getLastAvailableItem() {
-    if (this.listOfAvailableItems.length === 0) {
+    if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
-    return this.listOfAvailableItems[this.listOfAvailableItems.length - 1];
+    return this.listOfAvailableItems[this.listOfAvailableItems.length - DCFUtility.magicNumbers('int1')];
   }
 
   getNextSelectedItem() {
@@ -847,17 +859,17 @@ class DCFSearchSelectClass {
   }
   getFirstSelectedItem() {
     const allSelectedItems = this.selectedItemsListElement.children;
-    if (allSelectedItems.length === 0) {
+    if (allSelectedItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
-    return allSelectedItems[0];
+    return allSelectedItems[DCFUtility.magicNumbers('int0')];
   }
   getLastSelectedItem() {
     const allSelectedItems = this.selectedItemsListElement.children;
-    if (allSelectedItems.length === 0) {
+    if (allSelectedItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
-    return allSelectedItems[allSelectedItems.length - 1];
+    return allSelectedItems[allSelectedItems.length - DCFUtility.magicNumbers('int1')];
   }
 
   selectAvailableItem(itemToSelect) {
@@ -881,7 +893,7 @@ class DCFSearchSelectClass {
     this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`).forEach((singleSelectedItem) => {
       singleSelectedItem.remove();
     });
-    if (this.selectedItemsListElement.children.length === 0) {
+    if (this.selectedItemsListElement.children.length === DCFUtility.magicNumbers('int0')) {
       this.selectedItemsListElement.setAttribute('tabindex', '-1');
     }
   }
@@ -895,7 +907,7 @@ class DCFSearchSelectClass {
       }
     });
     itemToRemove.remove();
-    if (this.selectedItemsListElement.children.length === 0) {
+    if (this.selectedItemsListElement.children.length === DCFUtility.magicNumbers('int0')) {
       this.selectedItemsListElement.setAttribute('tabindex', '-1');
       this.inputElement.focus();
     }
@@ -926,7 +938,7 @@ class DCFSearchSelectClass {
   }
 
   filterAvailableItems() {
-    //TODO: Fix this function
+    // TODO: Fix this function
     this.availableItemsListElement.innerHTML = this.unfilteredAvailableItemsElement.innerHTML;
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');
@@ -1011,6 +1023,7 @@ export class DCFSearchSelect {
   initialize() {
     // Loops through each one
     this.selects.forEach((selectElement, index) => {
+      // TODO: Set up all attributes on select element
       selectElement.setAttribute('id', selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-label-', index));
 
       this.selectsObjs.push(new DCFSearchSelectClass(selectElement));
