@@ -26,10 +26,138 @@ import { DCFUtility } from './dcf-utility';
 export class DCFSearchSelectTheme {
   // Sets up the theme
   constructor() {
-    this.availableItemsClassList = [
+    this.searchAndSelectClassList = [
+      'dcf-relative'
+    ];
+
+    this.searchAreaClassList = [
+      'dcf-relative',
+      'dcf-d-grid',
+      'dcf-overflow-x-hidden',
+      'dcf-overflow-y-auto'
+    ];
+
+    this.selectedItemsListClassList = [
+      'dcf-d-flex',
+      'dcf-flex-wrap',
+      'dcf-gap-3',
       'dcf-m-0',
+      'dcf-p-3'
+    ];
+
+    this.selectedItemClassList = [
+      'dcf-d-flex',
+      'dcf-flex-nowrap',
+      'dcf-m-0',
+      'dcf-ai-center',
+      'dcf-jc-center',
+      'dcf-rounded'
+    ];
+
+    this.selectedItemButtonClassList = [
+      'dcf-btn',
+      'dcf-btn-secondary',
+      'dcf-m-0',
+      'dcf-p-1',
+      'dcf-h-100%',
+      'dcf-sharp',
+      'dcf-rounded-left'
+    ];
+
+    this.selectedItemButtonSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" class="dcf-fill-current dcf-w-4 dcf-h-4 dcf-d-block">
+        <path d="M25.4,22.6L15.8,13l9.6-9.6C25.8,3,26,2.5,26,2s-0.2-1-0.6-1.4c-0.8-0.8-2.1-0.8-2.8,0L13,10.2L3.4,0.6
+          c-0.8-0.8-2-0.8-2.8,0c-0.8,0.8-0.8,2,0,2.8l9.6,9.6l-9.6,9.6C0.2,23,0,23.5,0,24c0,0.5,0.2,1,0.6,1.4C1,25.8,1.5,26,2,26
+          c0.5,0,1-0.2,1.4-0.6l9.6-9.6l9.6,9.6C23,25.8,23.5,26,24,26c0,0,0,0,0,0c0.5,0,1-0.2,1.4-0.6C25.8,25,26,24.5,26,24
+          C26,23.5,25.8,23,25.4,22.6z"/>
+      </svg>
+    `;
+
+    this.selectedItemLabelClassList = [
+      'dcf-rounded-right',
       'dcf-b-1',
       'dcf-b-solid',
+      'dcf-p-1'
+    ];
+
+    this.toggleButtonContainerClassList = [
+      'dcf-sticky',
+      'dcf-top-50%',
+      'dcf-h-0',
+      'dcf-pl-1',
+      'dcf-pr-1'
+    ];
+
+    this.toggleButtonClassList = [
+      'dcf-btn',
+      'dcf-btn-tertiary',
+      'dcf-m-0',
+      'dcf-p-3'
+    ];
+
+    this.toggleButtonSVG = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        class="dcf-fill-current dcf-w-3 dcf-h-3 dcf-d-block"
+        aria-hidden="true"
+      >
+        <path d="M23.936,2.255C23.848,2.098,23.681,2,23.5,2h-23
+          C0.32,2,0.153,2.098,0.065,2.255c-0.089,0.157-0.085,0.35,0.008,0.504
+          l11.5,19C11.663,21.908,11.826,22,12,22s0.337-0.092,0.428-0.241
+          l11.5-19C24.021,2.605,24.025,2.412,23.936,2.255z"></path>
+      </svg>
+    `;
+
+    this.inputClassList = [
+      'dcf-m-2',
+      'dcf-b-0'
+    ];
+
+    this.availableItemsListClassList = [
+      'dcf-w-100%',
+      'dcf-absolute',
+      'dcf-d-none',
+      'dcf-z-1',
+      'dcf-p-0',
+      'dcf-m-0'
+    ];
+
+    this.availableItemsGroupClassList = [
+      'dcf-m-0',
+      'dcf-p-0'
+    ];
+
+    // eslint-disable-next-line id-length
+    this.availableItemsGroupLabelClassList = [
+      'dcf-m-0',
+      'dcf-bold'
+    ];
+
+    this.availableItemClassList = [
+      'dcf-relative',
+      'dcf-d-flex',
+      'dcf-flex-row',
+      'dcf-flex-nowrap',
+      'dcf-jc-between',
+      'dcf-ai-center',
+      'dcf-m-0',
+    ];
+
+    this.availableItemIndicatorSVG = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block">
+        <path d="M31,0.4C30.6,0.1,30-0.1,29.4,0c-0.6,0.1-1.1,0.4-1.5,0.9
+        L10.1,26.3L3.8,20c-0.4-0.4-1-0.6-1.6-0.6c0,0,0,0,0,0
+        c-0.6,0-1.2,0.2-1.6,0.6C0.2,20.5,0,21,0,21.6
+        c0,0.6,0.2,1.2,0.7,1.6l8.1,8.1c0.4,0.4,1,0.7,1.6,0.7
+        c0.7,0,1.4-0.4,1.8-1L31.6,3.5
+        C32.3,2.5,32.1,1.1,31,0.4z"/>
+      </svg>
+    `;
+
+    this.availableItemsNoResultsClassList = [
+      'dcf-m-0',
+      'dcf-bold'
     ];
   }
 
@@ -42,7 +170,12 @@ export class DCFSearchSelectTheme {
 }
 
 class DCFSearchSelectClass {
-  constructor(selectElement) {
+  constructor(selectElement, theme) {
+    if (theme instanceof DCFSearchSelectTheme) {
+      this.theme = theme;
+    } else {
+      this.theme = new DCFSearchSelectTheme();
+    }
     this.selectElement = selectElement;
     this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
 
@@ -67,28 +200,15 @@ class DCFSearchSelectClass {
     this.availableItemsListElement.setAttribute('aria-multiselectable', true);
     this.availableItemsListElement.classList.add(
       'dcf-search-and-select-available-items',
-      'dcf-w-100%',
-      'dcf-absolute',
-      'dcf-d-none',
-      'dcf-z-1',
-      'dcf-p-0',
-      'dcf-m-0'
+      ...this.theme.availableItemsListClassList
     );
 
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
-      <div
-        class="
-          dcf-search-and-select-search-area
-          dcf-relative
-          dcf-d-grid
-          dcf-overflow-x-hidden
-          dcf-overflow-y-auto
-        "
-      >
+      <div class="dcf-search-and-select-search-area ${ this.theme.searchAreaClassList.join(' ') }" >
         <span id="${ this.selectedItemsHelpID }" class="dcf-sr-only">Press Delete or Backspace to Remove.</span>
         <ul
-          class="dcf-search-and-select-selected-items dcf-d-flex dcf-flex-wrap dcf-gap-3 dcf-m-0 dcf-p-3"
+          class="dcf-search-and-select-selected-items ${ this.theme.selectedItemsListClassList.join(' ') }"
           role="listbox"
           aria-describedby="${ this.selectedItemsHelpID }"
           id=${ this.selectedItemsListID }
@@ -96,30 +216,20 @@ class DCFSearchSelectClass {
           aria-activedescendant=""
           aria-orientation="horizontal"
         ></ul>
-        <div class="dcf-search-and-select-open-btn dcf-sticky dcf-top-50% dcf-h-0 dcf-pl-1 dcf-pr-1">
+        <div class="dcf-search-and-select-open-btn ${ this.theme.toggleButtonContainerClassList.join(' ') }">
           <button
-            class="dcf-btn dcf-btn-tertiary dcf-m-0 dcf-p-3"
+            class="${ this.theme.toggleButtonClassList.join(' ') }"
             type="button"
             tabindex="-1"
             aria-expanded="false"
             aria-controls="${ this.availableItemsListID }"
             aria-labelledby="${ this.labelID }"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              class="dcf-fill-current dcf-w-3 dcf-h-3 dcf-d-block"
-              aria-hidden="true"
-            >
-              <path d="M23.936,2.255C23.848,2.098,23.681,2,23.5,2h-23
-                C0.32,2,0.153,2.098,0.065,2.255c-0.089,0.157-0.085,0.35,0.008,0.504
-                l11.5,19C11.663,21.908,11.826,22,12,22s0.337-0.092,0.428-0.241
-                l11.5-19C24.021,2.605,24.025,2.412,23.936,2.255z"></path>
-            </svg>
+            ${ this.theme.toggleButtonSVG }
           </button>
         </div>
         <input
-          class="dcf-m-2 dcf-b-0"
+          class="${ this.theme.inputClassList.join(' ') }"
           type="text"
           role="combobox"
           id=${ this.inputID }
@@ -131,7 +241,7 @@ class DCFSearchSelectClass {
       </div>
     `;
     this.searchAndSelectElement.append(this.availableItemsListElement);
-    this.searchAndSelectElement.classList.add('dcf-search-and-select', 'dcf-relative');
+    this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
     this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
     this.searchAndSelectElement.dataset.for = this.selectID;
     selectElement.after(this.searchAndSelectElement);
@@ -211,16 +321,13 @@ class DCFSearchSelectClass {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-item-group', 'dcf-m-0', 'dcf-p-0');
+      groupedItems.classList.add('dcf-search-and-select-item-group', ...this.theme.availableItemsGroupClassList);
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
         ${ groupedItems.innerHTML }
         <li
-          class="
-            dcf-m-0
-            dcf-bold
-          "
+          class="${ this.theme.availableItemsGroupLabelClassList.join(' ') }"
           role="presentation"
         >
           ${ singleOptgroup.label }
@@ -235,13 +342,7 @@ class DCFSearchSelectClass {
             class="
               dcf-search-and-select-item
               dcf-search-and-select-clickable
-              dcf-relative
-              dcf-d-flex
-              dcf-flex-row
-              dcf-flex-nowrap
-              dcf-jc-between
-              dcf-ai-center
-              dcf-m-0
+              ${ this.theme.availableItemClassList.join(' ') }
             "
             role="option"
             aria-selected="false"
@@ -252,14 +353,7 @@ class DCFSearchSelectClass {
           >
             <span class="dcf-search-and-select-item-label">${ singleItem.label}</span>
             <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block">
-                <path d="M31,0.4C30.6,0.1,30-0.1,29.4,0c-0.6,0.1-1.1,0.4-1.5,0.9
-                L10.1,26.3L3.8,20c-0.4-0.4-1-0.6-1.6-0.6c0,0,0,0,0,0
-                c-0.6,0-1.2,0.2-1.6,0.6C0.2,20.5,0,21,0,21.6
-                c0,0.6,0.2,1.2,0.7,1.6l8.1,8.1c0.4,0.4,1,0.7,1.6,0.7
-                c0.7,0,1.4-0.4,1.8-1L31.6,3.5
-                C32.3,2.5,32.1,1.1,31,0.4z"/>
-              </svg>
+              ${ this.theme.availableItemIndicatorSVG }
             </span>
           </li>
         `;
@@ -277,37 +371,21 @@ class DCFSearchSelectClass {
     newSelectedItem.setAttribute('id', `${ singleAvailableItem.dataset.id }-selected`);
     newSelectedItem.classList.add(
       'dcf-search-and-select-selected-item',
-      'dcf-d-flex',
-      'dcf-flex-nowrap',
-      'dcf-m-0',
-      'dcf-ai-center',
-      'dcf-jc-center',
-      'dcf-rounded',
-      'dcf-search-and-select-clickable'
+      'dcf-search-and-select-clickable',
+      ... this.theme.selectedItemClassList
     );
     newSelectedItem.innerHTML = `
       <button
         class="
           dcf-search-and-select-selected-item-remove-btn
-          dcf-btn
-          dcf-btn-secondary
-          dcf-m-0
-          dcf-p-1
-          dcf-h-100%
-          dcf-sharp
-          dcf-rounded-left
+          ${ this.theme.selectedItemButtonClassList.join(' ') }
         "
         type="button"
         tabindex="-1"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" class="dcf-fill-current dcf-w-4 dcf-h-4 dcf-d-block">
-          <path d="M25.4,22.6L15.8,13l9.6-9.6C25.8,3,26,2.5,26,2s-0.2-1-0.6-1.4c-0.8-0.8-2.1-0.8-2.8,0L13,10.2L3.4,0.6
-            c-0.8-0.8-2-0.8-2.8,0c-0.8,0.8-0.8,2,0,2.8l9.6,9.6l-9.6,9.6C0.2,23,0,23.5,0,24c0,0.5,0.2,1,0.6,1.4C1,25.8,1.5,26,2,26
-            c0.5,0,1-0.2,1.4-0.6l9.6-9.6l9.6,9.6C23,25.8,23.5,26,24,26c0,0,0,0,0,0c0.5,0,1-0.2,1.4-0.6C25.8,25,26,24.5,26,24
-            C26,23.5,25.8,23,25.4,22.6z"/>
-        </svg>
+        ${ this.theme.selectedItemButtonSVG }
       </button>
-      <span class="dcf-rounded-right dcf-b-1 dcf-b-solid dcf-p-1">
+      <span class="${ this.theme.selectedItemLabelClassList.join(' ') }">
         ${ singleAvailableItem.querySelector('.dcf-search-and-select-item-label').innerText }
       </span>
     `;
@@ -971,10 +1049,10 @@ class DCFSearchSelectClass {
     if (noItemsFound) {
       let noItemsFoundElement = document.createElement('ul');
       noItemsFoundElement.setAttribute('role', 'presentation');
-      noItemsFoundElement.classList.add('dcf-search-and-select-no-results', 'dcf-m-0', 'dcf-p-0');
+      noItemsFoundElement.classList.add('dcf-search-and-select-no-results', ...this.theme.availableItemsGroupClassList);
 
       noItemsFoundElement.innerHTML = `
-        <li class="dcf-m-0 dcf-bold" role="option">
+        <li class="${ this.theme.availableItemsNoResultsClassList.join(' ') }" role="option">
           No results found
         </li>
       `;
@@ -1002,6 +1080,7 @@ export class DCFSearchSelect {
     // Store the button inputted (always will be an array )
     /** @type { Array<HTMLSelectElement> } */
     this.selects = selects;
+    // eslint-disable-next-line no-prototype-builtins
     if (NodeList.prototype.isPrototypeOf(this.selects)) {
       this.selects = Array.from(this.selects);
     } else if (!Array.isArray(this.selects)) {
