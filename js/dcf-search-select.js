@@ -60,12 +60,12 @@ class DCFSearchSelectClass {
     this.labelElement.setAttribute('for', this.inputID);
 
     this.parsedSelect = this.parseSelect();
-    this.unfilteredAvailableItemsElement = this.buildAvailableItems();
+    this.availableItemsListElement = this.buildAvailableItems();
 
-    this.unfilteredAvailableItemsElement.setAttribute('id', this.availableItemsListID);
-    this.unfilteredAvailableItemsElement.setAttribute('aria-labelledby', this.labelID);
-    this.unfilteredAvailableItemsElement.setAttribute('aria-multiselectable', true);
-    this.unfilteredAvailableItemsElement.classList.add(
+    this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
+    this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
+    this.availableItemsListElement.setAttribute('aria-multiselectable', true);
+    this.availableItemsListElement.classList.add(
       'dcf-search-and-select-available-items',
       'dcf-w-100%',
       'dcf-absolute',
@@ -130,14 +130,13 @@ class DCFSearchSelectClass {
         >
       </div>
     `;
-    this.searchAndSelectElement.append(this.unfilteredAvailableItemsElement);
+    this.searchAndSelectElement.append(this.availableItemsListElement);
     this.searchAndSelectElement.classList.add('dcf-search-and-select', 'dcf-relative');
     this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
     this.searchAndSelectElement.dataset.for = this.selectID;
     selectElement.after(this.searchAndSelectElement);
 
     this.inputElement = this.searchAndSelectElement.querySelector('input');
-    this.availableItemsListElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-available-items');
     this.selectedItemsListElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-selected-items');
     this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
     this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area');
@@ -938,12 +937,14 @@ class DCFSearchSelectClass {
   }
 
   filterAvailableItems() {
-    // TODO: Fix this function
-    this.availableItemsListElement.innerHTML = this.unfilteredAvailableItemsElement.innerHTML;
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');
     const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-item-group');
     this.listOfAvailableItems = [];
+
+    this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
+      singleNoResult.remove();
+    });
 
     let noItemsFound = true;
     allItems.forEach((singleItem) => {
@@ -970,10 +971,10 @@ class DCFSearchSelectClass {
     if (noItemsFound) {
       let noItemsFoundElement = document.createElement('ul');
       noItemsFoundElement.setAttribute('role', 'presentation');
-      noItemsFoundElement.classList.add('dcf-search-and-select-no-results');
+      noItemsFoundElement.classList.add('dcf-search-and-select-no-results', 'dcf-m-0', 'dcf-p-0');
 
       noItemsFoundElement.innerHTML = `
-        <li role="option">
+        <li class="dcf-m-0 dcf-bold" role="option">
           No results found
         </li>
       `;

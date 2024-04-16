@@ -48,9 +48,7 @@
     background-color: $bg-color-input;
     border: $border-width-input $border-style-input $border-color-input;
     @if ($border-radius-input-roundrect) {
-        border-top-left-radius: $roundrect;
-        border-top-right-radius: $roundrect;
-        border-bottom-right-radius: $roundrect;
+        border-radius: $roundrect;
     } @else {
         border-radius: 0;
     }
