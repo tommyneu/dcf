@@ -14,26 +14,25 @@
     outline: $border-width-input $border-style-input $border-color-input-focus;
 }
 
+// This is for the outline that overflows out of the available items list
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:after,
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:after,
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:before,
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:before {
     content: "";
     position: absolute;
     top: 0;
-    left: 0;
     height: calc(100% + #{$border-width-input});
     width: $border-width-input;
     background-color: $border-color-input-focus;
 }
-
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:before,
+.dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:before {
+    left: 0;
+}
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:after,
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:after {
-    content: "";
-    position: absolute;
-    top: 0;
     right: 0;
-    height: calc(100% + #{$border-width-input});
-    width: $border-width-input;
-    background-color: $border-color-input-focus;
 }
 
 .dcf-search-and-select .dcf-search-and-select-clickable {
