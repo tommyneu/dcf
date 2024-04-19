@@ -51,10 +51,21 @@
     background-color: $bg-color-input-disabled;
 }
 
-.dcf-search-and-select .dcf-search-and-select-search-area {
+.dcf-search-and-select .dcf-search-and-select-search-area-multiple {
     max-height: 10rem;
     grid-template-columns: 1fr auto;
     grid-template-rows: 1fr auto;
+    background-color: $bg-color-input;
+    border: $border-width-input $border-style-input $border-color-input;
+    @if ($border-radius-input-roundrect) {
+        border-radius: $roundrect;
+    } @else {
+        border-radius: 0;
+    }
+}
+
+.dcf-search-and-select .dcf-search-and-select-search-area-single {
+    grid-template-columns: 1fr auto;
     background-color: $bg-color-input;
     border: $border-width-input $border-style-input $border-color-input;
     @if ($border-radius-input-roundrect) {

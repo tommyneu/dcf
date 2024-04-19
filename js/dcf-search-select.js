@@ -171,7 +171,7 @@ export class DCFSearchSelectTheme {
   }
 }
 
-class DCFSearchSelectClass {
+class DCFSearchSelectMultiple {
   constructor(selectElement, theme) {
     if (theme instanceof DCFSearchSelectTheme) {
       this.theme = theme;
@@ -197,7 +197,7 @@ class DCFSearchSelectClass {
 
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
-      <div class="dcf-search-and-select-search-area ${ this.theme.searchAreaClassList.join(' ') }" >
+      <div class="dcf-search-and-select-search-area-multiple ${ this.theme.searchAreaClassList.join(' ') }" >
         <span id="${ this.selectedItemsHelpID }" class="dcf-sr-only">Press Delete or Backspace to Remove.</span>
         <ul
           class="dcf-search-and-select-selected-items ${ this.theme.selectedItemsListClassList.join(' ') }"
@@ -241,7 +241,7 @@ class DCFSearchSelectClass {
     this.inputElement = this.searchAndSelectElement.querySelector('input');
     this.selectedItemsListElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-selected-items');
     this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
-    this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area');
+    this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area-multiple');
 
     this.parsedSelect = this.parseSelect();
     this.availableItemsListElement = this.buildAvailableItems();
@@ -1091,6 +1091,639 @@ class DCFSearchSelectClass {
   }
 }
 
+class DCFSearchSelectSingle {
+  constructor(selectElement, theme) {
+    if (theme instanceof DCFSearchSelectTheme) {
+      this.theme = theme;
+    } else {
+      this.theme = new DCFSearchSelectTheme();
+    }
+
+    this.selectElement = selectElement;
+    this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
+
+    this.uuid = DCFUtility.uuidv4();
+
+    this.selectID = this.selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-select');
+    this.labelID = this.labelElement.getAttribute('id') || this.uuid.concat('-search-and-select-label');
+    this.searchAndSelectID = this.uuid.concat('-search-and-select');
+    this.inputID = this.uuid.concat('-search-and-select-input');
+    this.availableItemsListID = this.uuid.concat('-search-and-select-available-items-list');
+
+    this.labelElement.setAttribute('id', this.labelID);
+    this.labelElement.setAttribute('for', this.inputID);
+
+    this.searchAndSelectElement = document.createElement('div');
+    this.searchAndSelectElement.innerHTML = `
+      <div class="dcf-search-and-select-search-area-single ${ this.theme.searchAreaClassList.join(' ') }" >
+        <input
+          class="${ this.theme.inputClassList.join(' ') }"
+          type="text"
+          role="combobox"
+          id=${ this.inputID }
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="${ this.availableItemsListID }"
+        >
+        <div class="dcf-search-and-select-open-btn ${ this.theme.toggleButtonContainerClassList.join(' ') }">
+          <button
+            class="${ this.theme.toggleButtonClassList.join(' ') }"
+            type="button"
+            tabindex="-1"
+            aria-expanded="false"
+            aria-controls="${ this.availableItemsListID }"
+            aria-labelledby="${ this.labelID }"
+          >
+            ${ this.theme.toggleButtonSVG }
+          </button>
+        </div>
+      </div>
+    `;
+    this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
+    this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
+    this.searchAndSelectElement.setAttribute('hidden', 'hidden');
+    this.searchAndSelectElement.dataset.for = this.selectID;
+    selectElement.after(this.searchAndSelectElement);
+
+    this.inputElement = this.searchAndSelectElement.querySelector('input');
+    this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
+    this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area-single');
+
+    this.parsedSelect = this.parseSelect();
+    this.availableItemsListElement = this.buildAvailableItems();
+
+    this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
+    this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
+    this.availableItemsListElement.setAttribute('aria-multiselectable', true);
+    this.availableItemsListElement.classList.add(
+      'dcf-search-and-select-available-items',
+      ...this.theme.availableItemsListClassList
+    );
+    this.searchAndSelectElement.append(this.availableItemsListElement);
+
+    this.currentFocus = null;
+    this.listOfAvailableItems = [];
+
+    this.addEventListeners();
+    this.searchAndSelectElement.removeAttribute('hidden');
+  }
+
+  /**
+   * Recursively parses the select/optgroups
+   * @returns { Array<ParsedOptgroup> }
+   */
+  parseSelect() {
+    let returnedData = this.parseSelectInner(this.selectElement);
+    let optgroups = returnedData.optgroups;
+
+    optgroups.push({
+      tag: 'optgroup',
+      label: 'Other',
+      element: this.selectElement,
+      items: returnedData.options,
+    });
+
+    return optgroups;
+  }
+
+  /**
+   * Recursively parses the select/optgroups
+   * @param { HTMLSelectElement|HTMLOptGroupElement } selectOrOptgroup The select or optgroup to parse
+   * @returns { ParseSelectInner }
+   */
+  parseSelectInner(selectOrOptgroup) {
+    const optgroups = [];
+    const options = [];
+
+    for (const optgroupOrOption of selectOrOptgroup.children) {
+      if (optgroupOrOption.tagName === 'OPTGROUP') {
+        let returnedData = this.parseSelectInner(optgroupOrOption);
+        let returnedOptgroups = returnedData.optgroups;
+        optgroups.push(...returnedOptgroups);
+
+        optgroups.push({
+          tag: 'optgroup',
+          label: optgroupOrOption.getAttribute('label'),
+          element: optgroupOrOption,
+          items: returnedData.options,
+        });
+      } else if (optgroupOrOption.tagName === 'OPTION') {
+        options.push({
+          tag: 'option',
+          label: optgroupOrOption.innerHTML,
+          value: optgroupOrOption.getAttribute('value'),
+          selected: optgroupOrOption.getAttribute('selected') !== null,
+          disabled: optgroupOrOption.getAttribute('disabled') !== null,
+          id: DCFUtility.uuidv4().concat('-search-and-select-option'),
+          element: optgroupOrOption,
+        });
+      }
+    }
+
+    return { optgroups: optgroups, options: options };
+  }
+
+  /**
+   * Recursively builds the available items UL from output of parse select
+   * @returns { HTMLUListElement }
+   */
+  buildAvailableItems() {
+    let availableItems = document.createElement('ul');
+    availableItems.setAttribute('role', 'listbox');
+
+    this.parsedSelect.forEach((singleOptgroup) => {
+      let groupedItems = document.createElement('ul');
+      groupedItems.setAttribute('role', 'group');
+      groupedItems.classList.add('dcf-search-and-select-item-group', ...this.theme.availableItemsGroupClassList);
+
+      if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
+        groupedItems.innerHTML = `
+        ${ groupedItems.innerHTML }
+        <li
+          class="${ this.theme.availableItemsGroupLabelClassList.join(' ') }"
+          role="presentation"
+        >
+          ${ singleOptgroup.label }
+        </li>
+      `;
+      }
+
+      singleOptgroup.items.forEach((singleItem) => {
+        const newItem = document.createElement('li');
+        newItem.classList.add(
+          'dcf-search-and-select-item',
+          'dcf-search-and-select-clickable',
+          ...this.theme.availableItemClassList
+        );
+        newItem.setAttribute('role', 'option');
+        newItem.setAttribute('aria-selected', singleItem.disabled ? 'false' : singleItem.selected);
+        newItem.setAttribute('aria-disabled', singleItem.disabled);
+        newItem.setAttribute('id', `${ singleItem.id }-available`);
+        newItem.dataset.value = singleItem.value;
+        newItem.dataset.id = singleItem.id;
+        newItem.innerHTML = `
+          <span class="dcf-search-and-select-item-label">
+            ${ singleItem.label}
+          </span>
+          <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
+            ${ this.theme.availableItemIndicatorSVG }
+          </span>
+        `;
+        groupedItems.append(newItem);
+      });
+
+      availableItems.append(groupedItems);
+    });
+
+    return availableItems;
+  }
+
+  /**
+   * Add event listeners for the different parts of the search and select element
+   */
+  addEventListeners() {
+    document.body.addEventListener('pointerup', (event) => {
+      if (!this.searchAndSelectElement.contains(event.target)) {
+        this.closeAvailableItems();
+        this.setVisualFocusOn(false);
+      }
+    }, true);
+
+    this.searchAreaElement.addEventListener('click', () => {
+      this.setVisualFocusOn(this.searchAreaElement);
+      this.inputElement.focus();
+      if (this.isAvailableItemsOpen()) {
+        this.closeAvailableItems();
+      } else {
+        this.filterAvailableItems();
+        this.openAvailableItems();
+      }
+    });
+
+    this.inputElement.addEventListener('focus', () => {
+      this.setVisualFocusOn(this.searchAreaElement);
+    });
+
+    this.inputElement.addEventListener('keydown', (event) => {
+      const altKey = event.altKey;
+      let preventDefault = false;
+      const length = this.inputElement.value.length;
+
+      switch (event.code) {
+      case 'Enter':
+        if (this.visualFocusOnAvailableItems()) {
+          const currentItemElement = this.getAvailableItemActiveDescendant();
+          if (currentItemElement !== false) {
+            if (!this.isAvailableItemDisabled(currentItemElement)) {
+              if (this.isAvailableItemSelected(currentItemElement)) {
+                this.removeAvailableItem(currentItemElement);
+              } else {
+                this.selectAvailableItem(currentItemElement);
+              }
+            }
+          }
+        } else {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          this.setVisualFocusOn(this.availableItemsListElement);
+          this.setAvailableItemActiveDescendant(this.getFirstAvailableItem());
+          this.scrollActiveAvailableItemInView();
+        }
+        preventDefault = true;
+        break;
+
+      case 'Down':
+      case 'ArrowDown':
+        if (altKey) {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+        } else {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          if (!this.visualFocusOnAvailableItems()) {
+            this.setVisualFocusOn(this.availableItemsListElement);
+            this.setAvailableItemActiveDescendant(this.getFirstAvailableItem());
+            this.scrollActiveAvailableItemInView();
+          } else {
+            this.setVisualFocusOn(this.availableItemsListElement);
+            this.setAvailableItemActiveDescendant(this.getNextAvailableItem());
+            this.scrollActiveAvailableItemInView();
+          }
+        }
+        preventDefault = true;
+        break;
+
+      case 'Esc':
+      case 'Escape':
+        if (this.isAvailableItemsOpen()) {
+          this.closeAvailableItems(true);
+          this.setVisualFocusOn(this.searchAreaElement);
+        }
+        preventDefault = true;
+        break;
+
+      case 'Up':
+      case 'ArrowUp':
+        if (altKey) {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+        } else {
+          if (!this.isAvailableItemsOpen()) {
+            this.filterAvailableItems();
+            this.openAvailableItems();
+          }
+          if (!this.visualFocusOnAvailableItems()) {
+            this.setVisualFocusOn(this.availableItemsListElement);
+            this.setAvailableItemActiveDescendant(this.getLastAvailableItem());
+            this.scrollActiveAvailableItemInView();
+          } else {
+            this.setVisualFocusOn(this.availableItemsListElement);
+            this.setAvailableItemActiveDescendant(this.getPreviousAvailableItem());
+            this.scrollActiveAvailableItemInView();
+          }
+        }
+        preventDefault = true;
+        break;
+
+      case 'Tab':
+        this.closeAvailableItems(true);
+        this.setVisualFocusOn(false);
+        break;
+
+      case 'Home':
+        this.inputElement.setSelectionRange(DCFUtility.magicNumbers('int0'), DCFUtility.magicNumbers('int0'));
+        preventDefault = true;
+        break;
+
+      case 'End':
+        this.inputElement.setSelectionRange(length, length);
+        preventDefault = true;
+        break;
+
+      default:
+        break;
+      }
+
+      if (preventDefault) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    });
+
+    this.inputElement.addEventListener('keyup', (event) => {
+      const char = event.key;
+      // const altKey = event.altKey;
+      let preventDefault = false;
+      // const length = this.inputElement.value.length;
+
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        return;
+      }
+
+      switch (event.code) {
+      case 'Backspace':
+        this.setVisualFocusOn(this.searchAreaElement);
+        this.filterAvailableItems();
+        this.setAvailableItemActiveDescendant(false);
+        preventDefault = true;
+        break;
+
+      case 'Left':
+      case 'ArrowLeft':
+      case 'Right':
+      case 'ArrowRight':
+      case 'Home':
+      case 'End':
+        this.setVisualFocusOn(this.searchAreaElement);
+        preventDefault = true;
+        break;
+
+      default:
+        if (this.isPrintableCharacter(char)) {
+          this.setVisualFocusOn(this.searchAreaElement);
+          this.filterAvailableItems();
+          this.openAvailableItems();
+          this.setAvailableItemActiveDescendant(false);
+        }
+        break;
+      }
+
+      if (preventDefault) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    });
+
+    this.availableItemsListElement.addEventListener('click', (event) => {
+      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      if (closestItem === null) {
+        return;
+      }
+
+      // If an item is disabled you can not select or de-select
+      if (!this.isAvailableItemDisabled(closestItem)) {
+        if (this.isAvailableItemSelected(closestItem)) {
+          this.removeAvailableItem(closestItem);
+        } else {
+          this.selectAvailableItem(closestItem);
+        }
+      }
+      this.inputElement.focus();
+      this.setVisualFocusOn(this.availableItemsListElement);
+      this.setAvailableItemActiveDescendant(closestItem);
+    });
+
+    this.availableItemsListElement.addEventListener('pointermove', (event) => {
+      const currentItem = this.getAvailableItemActiveDescendant();
+      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      if (closestItem === null) {
+        return;
+      }
+
+      if (currentItem === false || !closestItem.isSameNode(currentItem)) {
+        this.setAvailableItemActiveDescendant(closestItem);
+      }
+    });
+
+    this.availableItemsListElement.addEventListener('pointerout', (event) => {
+      if (this.availableItemsListElement.isSameNode(event.target)) {
+        this.setAvailableItemActiveDescendant(false);
+      }
+    });
+  }
+
+  isPrintableCharacter(str) {
+    return str.length === DCFUtility.magicNumbers('int1') && str.match(/\S| /);
+  }
+
+  isAvailableItemsOpen() {
+    return !this.availableItemsListElement.classList.contains('dcf-d-none');
+  }
+
+  openAvailableItems() {
+    this.inputElement.setAttribute('aria-expanded', 'true');
+    this.openButtonElement.setAttribute('aria-expanded', 'true');
+
+    this.availableItemsListElement.classList.remove('dcf-d-none');
+  }
+
+  closeAvailableItems(force) {
+    let formattedForce = force;
+    if (typeof formattedForce !== 'boolean') {
+      formattedForce = false;
+    }
+    this.inputElement.setAttribute('aria-expanded', 'false');
+    this.openButtonElement.setAttribute('aria-expanded', 'false');
+
+    this.availableItemsListElement.classList.add('dcf-d-none');
+  }
+
+  visualFocusOnAvailableItems() {
+    return this.availableItemsListElement.dataset.focused === 'true';
+  }
+
+  setVisualFocusOn(elementToFocus) {
+    if (this.currentFocus !== null && this.availableItemsListElement.isSameNode(this.currentFocus)) {
+      this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
+      delete this.availableItemsListElement.dataset.focused;
+    } else if (this.currentFocus !== null) {
+      this.currentFocus.classList.remove('dcf-search-and-select-visual-focus');
+      delete this.currentFocus.dataset.focused;
+    }
+
+    if (elementToFocus !== false && this.availableItemsListElement.isSameNode(elementToFocus)) {
+      this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
+      this.availableItemsListElement.dataset.focused = 'true';
+      this.currentFocus = elementToFocus;
+    } else if (elementToFocus !== false) {
+      elementToFocus.classList.add('dcf-search-and-select-visual-focus');
+      elementToFocus.dataset.focused = 'true';
+      this.currentFocus = elementToFocus;
+    } else {
+      this.currentFocus = null;
+    }
+  }
+
+  setVisualHover(elementToHover) {
+    this.searchAndSelectElement.querySelectorAll('.dcf-search-and-select-visual-hover').forEach((elem) => {
+      elem.classList.remove('dcf-search-and-select-visual-hover');
+    });
+
+    if (elementToHover !== false) {
+      elementToHover.classList.add('dcf-search-and-select-visual-hover');
+      this.currentHover = elementToHover;
+    } else {
+      this.currentHover = null;
+    }
+  }
+
+  getAvailableItemActiveDescendant() {
+    const currentItemID = this.inputElement.getAttribute('aria-activedescendant');
+    if (currentItemID !== null && currentItemID !== '') {
+      const currentItemElement = document.getElementById(currentItemID);
+      if (currentItemElement !== null) {
+        return currentItemElement;
+      }
+    }
+
+    return false;
+  }
+
+  setAvailableItemActiveDescendant(itemToSet) {
+    if (itemToSet !== false) {
+      this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
+      this.setVisualHover(itemToSet);
+    } else {
+      this.setVisualHover(false);
+      this.inputElement.setAttribute('aria-activedescendant', '');
+    }
+  }
+
+  scrollActiveAvailableItemInView() {
+    const currentItemElement = this.getAvailableItemActiveDescendant();
+    if (!this.isAvailableItemInView(currentItemElement)) {
+      currentItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+
+  getNextAvailableItem() {
+    let nextElement = null;
+    let nextElementFlag = false;
+    for (let index = 0; index < this.listOfAvailableItems.length; index++) {
+      if (nextElementFlag) {
+        nextElement = this.listOfAvailableItems[index];
+        break;
+      }
+      if (this.listOfAvailableItems[index].getAttribute('id') === this.inputElement.getAttribute('aria-activedescendant')) {
+        nextElementFlag = true;
+      }
+    }
+
+    if (nextElement === null) {
+      return this.getFirstAvailableItem();
+    }
+    return nextElement;
+  }
+  getPreviousAvailableItem() {
+    let previousElement = null;
+    for (let index = 0; index < this.listOfAvailableItems.length; index++) {
+      if (this.listOfAvailableItems[index].getAttribute('id') === this.inputElement.getAttribute('aria-activedescendant')) {
+        break;
+      }
+      previousElement = this.listOfAvailableItems[index];
+    }
+
+    if (previousElement === null) {
+      return this.getLastAvailableItem();
+    }
+    return previousElement;
+  }
+  getFirstAvailableItem() {
+    if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
+      return false;
+    }
+    return this.listOfAvailableItems[DCFUtility.magicNumbers('int0')];
+  }
+  getLastAvailableItem() {
+    if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
+      return false;
+    }
+    return this.listOfAvailableItems[this.listOfAvailableItems.length - DCFUtility.magicNumbers('int1')];
+  }
+
+  selectAvailableItem(itemToSelect) {
+    itemToSelect.setAttribute('aria-selected', 'true');
+    this.selectElement.querySelectorAll('option').forEach((singleOption) => {
+      if (singleOption.value === itemToSelect.dataset.value) {
+        singleOption.setAttribute('selected', 'selected');
+      }
+    });
+  }
+
+  removeAvailableItem(itemToRemove) {
+    itemToRemove.setAttribute('aria-selected', 'false');
+    this.selectElement.querySelectorAll('option').forEach((singleOption) => {
+      if (singleOption.value === itemToRemove.dataset.value) {
+        singleOption.removeAttribute('selected');
+      }
+    });
+  }
+
+  isAvailableItemSelected(itemToCheck) {
+    return itemToCheck.getAttribute('aria-selected') === 'true';
+  }
+
+  isAvailableItemDisabled(itemToCheck) {
+    return itemToCheck.getAttribute('aria-disabled') === 'true';
+  }
+
+  isAvailableItemInView(itemToCheck) {
+    // Get the bounding client rect of the ul and li
+    const listRect = this.availableItemsListElement.getBoundingClientRect();
+    const itemToCheckRect = itemToCheck.getBoundingClientRect();
+
+    // Check if the li is vertically in view within the ul
+    return itemToCheckRect.top >= listRect.top &&
+      itemToCheckRect.bottom <= listRect.bottom;
+  }
+
+  filterAvailableItems() {
+    const searchTerm = this.inputElement.value.trim().toUpperCase();
+    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');
+    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-item-group');
+    this.listOfAvailableItems = [];
+
+    this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
+      singleNoResult.remove();
+    });
+
+    let noItemsFound = true;
+    allItems.forEach((singleItem) => {
+      const itemLabel = singleItem.querySelector('.dcf-search-and-select-item-label').innerText.toUpperCase();
+      if (searchTerm === '' || itemLabel.includes(searchTerm)) {
+        singleItem.classList.remove('dcf-d-none');
+        singleItem.classList.add('dcf-d-flex');
+        this.listOfAvailableItems.push(singleItem);
+        noItemsFound = false;
+      } else {
+        singleItem.classList.add('dcf-d-none');
+        singleItem.classList.remove('dcf-d-flex');
+      }
+    });
+
+    allItemGroups.forEach((singleGroup) => {
+      if (singleGroup.querySelectorAll('.dcf-search-and-select-item:not(.dcf-d-none)').length === DCFUtility.magicNumbers('int0')) {
+        singleGroup.classList.add('dcf-d-none');
+      } else {
+        singleGroup.classList.remove('dcf-d-none');
+      }
+    });
+
+    if (noItemsFound) {
+      let noItemsFoundElement = document.createElement('ul');
+      noItemsFoundElement.setAttribute('role', 'presentation');
+      noItemsFoundElement.classList.add('dcf-search-and-select-no-results', ...this.theme.availableItemsGroupClassList);
+
+      noItemsFoundElement.innerHTML = `
+        <li class="${ this.theme.availableItemsNoResultsClassList.join(' ') }" role="option">
+          No results found
+        </li>
+      `;
+
+      this.availableItemsListElement.append(noItemsFoundElement);
+    }
+  }
+}
+
 export class DCFSearchSelect {
   // Set up the button
   constructor(selects, theme) {
@@ -1135,7 +1768,12 @@ export class DCFSearchSelect {
       // TODO: Set up all attributes on select element
       selectElement.setAttribute('id', selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-label-', index));
 
-      this.selectsObjs.push(new DCFSearchSelectClass(selectElement, this.theme));
+      if (selectElement.getAttribute('multiple') !== null) {
+        this.selectsObjs.push(new DCFSearchSelectMultiple(selectElement, this.theme));
+      } else {
+        this.selectsObjs.push(new DCFSearchSelectSingle(selectElement, this.theme));
+      }
+
     });
   }
 }
