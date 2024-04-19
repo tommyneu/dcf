@@ -14,6 +14,11 @@
     outline: $border-width-input $border-style-input $border-color-input-focus;
 }
 
+.dcf-search-and-select .dcf-search-and-select-selected-item.dcf-search-and-select-visual-hover,
+.dcf-search-and-select .dcf-search-and-select-selected-item.dcf-search-and-select-visual-focus{
+    outline-offset: $border-width-input;
+}
+
 // This is for the outline that overflows out of the available items list
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-hover:after,
 .dcf-search-and-select .dcf-search-and-select-item.dcf-search-and-select-visual-focus:after,
@@ -38,6 +43,12 @@
 .dcf-search-and-select .dcf-search-and-select-clickable {
     appearance: none;
     cursor: pointer;
+}
+
+.dcf-search-and-select .dcf-search-and-select-clickable[aria-disabled="true"] {
+    appearance: none;
+    cursor: not-allowed !important;
+    background-color: $bg-color-input-disabled;
 }
 
 .dcf-search-and-select .dcf-search-and-select-search-area {

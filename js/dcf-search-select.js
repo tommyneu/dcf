@@ -5,6 +5,8 @@ import { DCFUtility } from './dcf-utility';
  * @property {'option'} tag - The option's tag
  * @property {string} label - The option's label
  * @property {string} value - The option's value
+ * @property {bool} disabled - If option is disabled
+ * @property {bool} selected - If option is selected
  * @property {string} id - The option's unique ID
  * @property {HTMLOptionElement} element - The options's original element
  */
@@ -176,6 +178,7 @@ class DCFSearchSelectClass {
     } else {
       this.theme = new DCFSearchSelectTheme();
     }
+
     this.selectElement = selectElement;
     this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
 
@@ -191,17 +194,6 @@ class DCFSearchSelectClass {
 
     this.labelElement.setAttribute('id', this.labelID);
     this.labelElement.setAttribute('for', this.inputID);
-
-    this.parsedSelect = this.parseSelect();
-    this.availableItemsListElement = this.buildAvailableItems();
-
-    this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
-    this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
-    this.availableItemsListElement.setAttribute('aria-multiselectable', true);
-    this.availableItemsListElement.classList.add(
-      'dcf-search-and-select-available-items',
-      ...this.theme.availableItemsListClassList
-    );
 
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
@@ -240,9 +232,9 @@ class DCFSearchSelectClass {
         >
       </div>
     `;
-    this.searchAndSelectElement.append(this.availableItemsListElement);
     this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
     this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
+    this.searchAndSelectElement.setAttribute('hidden', 'hidden');
     this.searchAndSelectElement.dataset.for = this.selectID;
     selectElement.after(this.searchAndSelectElement);
 
@@ -251,10 +243,23 @@ class DCFSearchSelectClass {
     this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
     this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area');
 
+    this.parsedSelect = this.parseSelect();
+    this.availableItemsListElement = this.buildAvailableItems();
+
+    this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
+    this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
+    this.availableItemsListElement.setAttribute('aria-multiselectable', true);
+    this.availableItemsListElement.classList.add(
+      'dcf-search-and-select-available-items',
+      ...this.theme.availableItemsListClassList
+    );
+    this.searchAndSelectElement.append(this.availableItemsListElement);
+
     this.currentFocus = null;
     this.listOfAvailableItems = [];
 
     this.addEventListeners();
+    this.searchAndSelectElement.removeAttribute('hidden');
   }
 
   /**
@@ -301,6 +306,8 @@ class DCFSearchSelectClass {
           tag: 'option',
           label: optgroupOrOption.innerHTML,
           value: optgroupOrOption.getAttribute('value'),
+          selected: optgroupOrOption.getAttribute('selected') !== null,
+          disabled: optgroupOrOption.getAttribute('disabled') !== null,
           id: DCFUtility.uuidv4().concat('-search-and-select-option'),
           element: optgroupOrOption,
         });
@@ -336,27 +343,31 @@ class DCFSearchSelectClass {
       }
 
       singleOptgroup.items.forEach((singleItem) => {
-        groupedItems.innerHTML = `
-          ${ groupedItems.innerHTML }
-          <li
-            class="
-              dcf-search-and-select-item
-              dcf-search-and-select-clickable
-              ${ this.theme.availableItemClassList.join(' ') }
-            "
-            role="option"
-            aria-selected="false"
-            aria-disabled="false"
-            data-value="${ singleItem.value }"
-            data-id="${ singleItem.id }"
-            id="${ `${ singleItem.id }-available` }"
-          >
-            <span class="dcf-search-and-select-item-label">${ singleItem.label}</span>
-            <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
-              ${ this.theme.availableItemIndicatorSVG }
-            </span>
-          </li>
+        const newItem = document.createElement('li');
+        newItem.classList.add(
+          'dcf-search-and-select-item',
+          'dcf-search-and-select-clickable',
+          ...this.theme.availableItemClassList
+        );
+        newItem.setAttribute('role', 'option');
+        newItem.setAttribute('aria-selected', singleItem.disabled ? 'false' : singleItem.selected);
+        newItem.setAttribute('aria-disabled', singleItem.disabled);
+        newItem.setAttribute('id', `${ singleItem.id }-available`);
+        newItem.dataset.value = singleItem.value;
+        newItem.dataset.id = singleItem.id;
+        newItem.innerHTML = `
+          <span class="dcf-search-and-select-item-label">
+            ${ singleItem.label}
+          </span>
+          <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
+            ${ this.theme.availableItemIndicatorSVG }
+          </span>
         `;
+        groupedItems.append(newItem);
+
+        if (singleItem.disabled === false && singleItem.selected === true) {
+          this.appendNewSelectedItem(newItem);
+        }
       });
 
       availableItems.append(groupedItems);
@@ -435,10 +446,12 @@ class DCFSearchSelectClass {
         if (this.visualFocusOnAvailableItems()) {
           const currentItemElement = this.getAvailableItemActiveDescendant();
           if (currentItemElement !== false) {
-            if (this.isAvailableItemSelected(currentItemElement)) {
-              this.removeAvailableItem(currentItemElement);
-            } else {
-              this.selectAvailableItem(currentItemElement);
+            if (!this.isAvailableItemDisabled(currentItemElement)) {
+              if (this.isAvailableItemSelected(currentItemElement)) {
+                this.removeAvailableItem(currentItemElement);
+              } else {
+                this.selectAvailableItem(currentItemElement);
+              }
             }
           }
         } else {
@@ -586,10 +599,13 @@ class DCFSearchSelectClass {
         return;
       }
 
-      if (this.isAvailableItemSelected(closestItem)) {
-        this.removeAvailableItem(closestItem);
-      } else {
-        this.selectAvailableItem(closestItem);
+      // If an item is disabled you can not select or de-select
+      if (!this.isAvailableItemDisabled(closestItem)) {
+        if (this.isAvailableItemSelected(closestItem)) {
+          this.removeAvailableItem(closestItem);
+        } else {
+          this.selectAvailableItem(closestItem);
+        }
       }
       this.inputElement.focus();
       this.setVisualFocusOn(this.availableItemsListElement);
@@ -994,6 +1010,10 @@ class DCFSearchSelectClass {
     return itemToCheck.getAttribute('aria-selected') === 'true';
   }
 
+  isAvailableItemDisabled(itemToCheck) {
+    return itemToCheck.getAttribute('aria-disabled') === 'true';
+  }
+
   isAvailableItemInView(itemToCheck) {
     // Get the bounding client rect of the ul and li
     const listRect = this.availableItemsListElement.getBoundingClientRect();
@@ -1106,7 +1126,7 @@ export class DCFSearchSelect {
       // TODO: Set up all attributes on select element
       selectElement.setAttribute('id', selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-label-', index));
 
-      this.selectsObjs.push(new DCFSearchSelectClass(selectElement));
+      this.selectsObjs.push(new DCFSearchSelectClass(selectElement, this.theme));
     });
   }
 }
