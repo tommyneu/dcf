@@ -367,6 +367,7 @@ class DCFSearchSelectClass {
 
         if (singleItem.disabled === false && singleItem.selected === true) {
           this.appendNewSelectedItem(newItem);
+          this.selectedItemsListElement.setAttribute('tabindex', '0');
         }
       });
 
@@ -432,12 +433,9 @@ class DCFSearchSelectClass {
       this.setVisualFocusOn(this.searchAreaElement);
     });
 
-    this.inputElement.addEventListener('blur', () => {
-      this.setVisualFocusOn(false);
-    });
-
     this.inputElement.addEventListener('keydown', (event) => {
       const altKey = event.altKey;
+      const shiftKey = event.shiftKey;
       let preventDefault = false;
       const length = this.inputElement.value.length;
 
@@ -527,6 +525,9 @@ class DCFSearchSelectClass {
 
       case 'Tab':
         this.closeAvailableItems(true);
+        if (this.isSelectedItemTab() === false || !shiftKey) {
+          this.setVisualFocusOn(false);
+        }
         break;
 
       case 'Home':
@@ -672,7 +673,11 @@ class DCFSearchSelectClass {
     });
 
     this.selectedItemsListElement.addEventListener('focus', () => {
+      const currentItem = this.getSelectedItemActiveDescendant();
       this.setVisualFocusOn(this.selectedItemsListElement);
+      if (currentItem === false) {
+        this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
+      }
     });
 
     this.selectedItemsListElement.addEventListener('blur', () => {
@@ -751,6 +756,10 @@ class DCFSearchSelectClass {
 
   isAvailableItemsOpen() {
     return !this.availableItemsListElement.classList.contains('dcf-d-none');
+  }
+
+  isSelectedItemTab() {
+    return this.selectedItemsListElement.getAttribute('tabindex') === '0';
   }
 
   openAvailableItems() {
