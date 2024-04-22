@@ -111,9 +111,21 @@ export class DCFSearchSelectTheme {
       </svg>
     `;
 
-    this.inputClassList = [
+    this.inputSingleClassList = [
       'dcf-m-2',
       'dcf-b-0'
+    ];
+
+    this.inputGroupMultiple = [
+      'dcf-d-flex',
+      'dcf-flex-wrap'
+    ];
+
+    this.inputMultipleClassList = [
+      'dcf-m-2',
+      'dcf-b-0',
+      'dcf-flex-grow-1',
+      'dcf-flex-shrink-0',
     ];
 
     this.availableItemsListClassList = [
@@ -198,16 +210,28 @@ class DCFSearchSelectMultiple {
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
       <div class="dcf-search-and-select-search-area-multiple ${ this.theme.searchAreaClassList.join(' ') }" >
-        <span id="${ this.selectedItemsHelpID }" class="dcf-sr-only">Press Delete or Backspace to Remove.</span>
-        <ul
-          class="dcf-search-and-select-selected-items ${ this.theme.selectedItemsListClassList.join(' ') }"
-          role="listbox"
-          aria-describedby="${ this.selectedItemsHelpID }"
-          id=${ this.selectedItemsListID }
-          tabindex="-1"
-          aria-activedescendant=""
-          aria-orientation="horizontal"
-        ></ul>
+        <div class="dcf-search-and-select-multiple-input-group ${ this.theme.inputGroupMultiple.join(' ') }">
+          <span id="${ this.selectedItemsHelpID }" class="dcf-sr-only">Press Delete or Backspace to Remove.</span>
+          <ul
+            class="dcf-search-and-select-selected-items ${ this.theme.selectedItemsListClassList.join(' ') }"
+            role="listbox"
+            aria-describedby="${ this.selectedItemsHelpID }"
+            id=${ this.selectedItemsListID }
+            tabindex="-1"
+            aria-activedescendant=""
+            aria-orientation="horizontal"
+          ></ul>
+          <input
+            class="${ this.theme.inputMultipleClassList.join(' ') }"
+            type="text"
+            role="combobox"
+            id=${ this.inputID }
+            aria-haspopup="listbox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            aria-controls="${ this.availableItemsListID }"
+          >
+        </div>
         <div class="dcf-search-and-select-open-btn ${ this.theme.toggleButtonContainerClassList.join(' ') }">
           <button
             class="${ this.theme.toggleButtonClassList.join(' ') }"
@@ -220,16 +244,7 @@ class DCFSearchSelectMultiple {
             ${ this.theme.toggleButtonSVG }
           </button>
         </div>
-        <input
-          class="${ this.theme.inputClassList.join(' ') }"
-          type="text"
-          role="combobox"
-          id=${ this.inputID }
-          aria-haspopup="listbox"
-          aria-autocomplete="list"
-          aria-expanded="false"
-          aria-controls="${ this.availableItemsListID }"
-        >
+        
       </div>
     `;
     this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
@@ -328,7 +343,7 @@ class DCFSearchSelectMultiple {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-item-group', ...this.theme.availableItemsGroupClassList);
+      groupedItems.classList.add('dcf-search-and-select-available-item-group', ...this.theme.availableItemsGroupClassList);
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
@@ -345,7 +360,7 @@ class DCFSearchSelectMultiple {
       singleOptgroup.items.forEach((singleItem) => {
         const newItem = document.createElement('li');
         newItem.classList.add(
-          'dcf-search-and-select-item',
+          'dcf-search-and-select-available-item',
           'dcf-search-and-select-clickable',
           ...this.theme.availableItemClassList
         );
@@ -356,10 +371,10 @@ class DCFSearchSelectMultiple {
         newItem.dataset.value = singleItem.value;
         newItem.dataset.id = singleItem.id;
         newItem.innerHTML = `
-          <span class="dcf-search-and-select-item-label">
+          <span class="dcf-search-and-select-available-item-label">
             ${ singleItem.label}
           </span>
-          <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
+          <span class="dcf-search-and-select-available-item-indicator" aria-hidden="true">
             ${ this.theme.availableItemIndicatorSVG }
           </span>
         `;
@@ -398,7 +413,7 @@ class DCFSearchSelectMultiple {
         ${ this.theme.selectedItemButtonSVG }
       </button>
       <span class="${ this.theme.selectedItemLabelClassList.join(' ') }">
-        ${ singleAvailableItem.querySelector('.dcf-search-and-select-item-label').innerText }
+        ${ singleAvailableItem.querySelector('.dcf-search-and-select-available-item-label').innerText }
       </span>
     `;
     this.selectedItemsListElement.append(newSelectedItem);
@@ -595,7 +610,7 @@ class DCFSearchSelectMultiple {
     });
 
     this.availableItemsListElement.addEventListener('click', (event) => {
-      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      const closestItem = event.target.closest('.dcf-search-and-select-available-item');
       if (closestItem === null) {
         return;
       }
@@ -615,7 +630,7 @@ class DCFSearchSelectMultiple {
 
     this.availableItemsListElement.addEventListener('pointermove', (event) => {
       const currentItem = this.getAvailableItemActiveDescendant();
-      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      const closestItem = event.target.closest('.dcf-search-and-select-available-item');
       if (closestItem === null) {
         return;
       }
@@ -1045,8 +1060,8 @@ class DCFSearchSelectMultiple {
 
   filterAvailableItems() {
     const searchTerm = this.inputElement.value.trim().toUpperCase();
-    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');
-    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-item-group');
+    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
+    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-item-group');
     this.listOfAvailableItems = [];
 
     this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
@@ -1055,7 +1070,7 @@ class DCFSearchSelectMultiple {
 
     let noItemsFound = true;
     allItems.forEach((singleItem) => {
-      const itemLabel = singleItem.querySelector('.dcf-search-and-select-item-label').innerText.toUpperCase();
+      const itemLabel = singleItem.querySelector('.dcf-search-and-select-available-item-label').innerText.toUpperCase();
       if (searchTerm === '' || itemLabel.includes(searchTerm)) {
         singleItem.classList.remove('dcf-d-none');
         singleItem.classList.add('dcf-d-flex');
@@ -1068,7 +1083,8 @@ class DCFSearchSelectMultiple {
     });
 
     allItemGroups.forEach((singleGroup) => {
-      if (singleGroup.querySelectorAll('.dcf-search-and-select-item:not(.dcf-d-none)').length === DCFUtility.magicNumbers('int0')) {
+      const shownGroupItems = singleGroup.querySelectorAll('.dcf-search-and-select-available-item:not(.dcf-d-none)');
+      if (shownGroupItems.length === DCFUtility.magicNumbers('int0')) {
         singleGroup.classList.add('dcf-d-none');
       } else {
         singleGroup.classList.remove('dcf-d-none');
@@ -1117,7 +1133,7 @@ class DCFSearchSelectSingle {
     this.searchAndSelectElement.innerHTML = `
       <div class="dcf-search-and-select-search-area-single ${ this.theme.searchAreaClassList.join(' ') }" >
         <input
-          class="${ this.theme.inputClassList.join(' ') }"
+          class="${ this.theme.inputSingleClassList.join(' ') }"
           type="text"
           role="combobox"
           id=${ this.inputID }
@@ -1155,7 +1171,6 @@ class DCFSearchSelectSingle {
 
     this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
     this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
-    this.availableItemsListElement.setAttribute('aria-multiselectable', true);
     this.availableItemsListElement.classList.add(
       'dcf-search-and-select-available-items',
       ...this.theme.availableItemsListClassList
@@ -1235,7 +1250,7 @@ class DCFSearchSelectSingle {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-item-group', ...this.theme.availableItemsGroupClassList);
+      groupedItems.classList.add('dcf-search-and-select-available-item-group', ...this.theme.availableItemsGroupClassList);
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
@@ -1252,7 +1267,7 @@ class DCFSearchSelectSingle {
       singleOptgroup.items.forEach((singleItem) => {
         const newItem = document.createElement('li');
         newItem.classList.add(
-          'dcf-search-and-select-item',
+          'dcf-search-and-select-available-item',
           'dcf-search-and-select-clickable',
           ...this.theme.availableItemClassList
         );
@@ -1261,16 +1276,18 @@ class DCFSearchSelectSingle {
         newItem.setAttribute('aria-disabled', singleItem.disabled);
         newItem.setAttribute('id', `${ singleItem.id }-available`);
         newItem.dataset.value = singleItem.value;
+        newItem.dataset.label = singleItem.label;
         newItem.dataset.id = singleItem.id;
         newItem.innerHTML = `
-          <span class="dcf-search-and-select-item-label">
+          <span class="dcf-search-and-select-available-item-label">
             ${ singleItem.label}
           </span>
-          <span class="dcf-search-and-select-item-indicator" aria-hidden="true">
+          <span class="dcf-search-and-select-available-item-indicator" aria-hidden="true">
             ${ this.theme.availableItemIndicatorSVG }
           </span>
         `;
         groupedItems.append(newItem);
+        // TODO: figure out what todo if selected
       });
 
       availableItems.append(groupedItems);
@@ -1464,7 +1481,7 @@ class DCFSearchSelectSingle {
     });
 
     this.availableItemsListElement.addEventListener('click', (event) => {
-      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      const closestItem = event.target.closest('.dcf-search-and-select-available-item');
       if (closestItem === null) {
         return;
       }
@@ -1484,7 +1501,7 @@ class DCFSearchSelectSingle {
 
     this.availableItemsListElement.addEventListener('pointermove', (event) => {
       const currentItem = this.getAvailableItemActiveDescendant();
-      const closestItem = event.target.closest('.dcf-search-and-select-item');
+      const closestItem = event.target.closest('.dcf-search-and-select-available-item');
       if (closestItem === null) {
         return;
       }
@@ -1641,12 +1658,20 @@ class DCFSearchSelectSingle {
   }
 
   selectAvailableItem(itemToSelect) {
+    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
+    allItems.forEach((singleOption) => {
+      singleOption.setAttribute('aria-selected', 'false');
+    });
     itemToSelect.setAttribute('aria-selected', 'true');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToSelect.dataset.value) {
         singleOption.setAttribute('selected', 'selected');
+      } else {
+        singleOption.removeAttribute('selected', 'selected');
       }
     });
+    this.closeAvailableItems();
+    this.inputElement.value = itemToSelect.dataset.label;
   }
 
   removeAvailableItem(itemToRemove) {
@@ -1678,8 +1703,8 @@ class DCFSearchSelectSingle {
 
   filterAvailableItems() {
     const searchTerm = this.inputElement.value.trim().toUpperCase();
-    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-item');
-    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-item-group');
+    const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
+    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-item-group');
     this.listOfAvailableItems = [];
 
     this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
@@ -1688,7 +1713,7 @@ class DCFSearchSelectSingle {
 
     let noItemsFound = true;
     allItems.forEach((singleItem) => {
-      const itemLabel = singleItem.querySelector('.dcf-search-and-select-item-label').innerText.toUpperCase();
+      const itemLabel = singleItem.querySelector('.dcf-search-and-select-available-item-label').innerText.toUpperCase();
       if (searchTerm === '' || itemLabel.includes(searchTerm)) {
         singleItem.classList.remove('dcf-d-none');
         singleItem.classList.add('dcf-d-flex');
@@ -1701,7 +1726,8 @@ class DCFSearchSelectSingle {
     });
 
     allItemGroups.forEach((singleGroup) => {
-      if (singleGroup.querySelectorAll('.dcf-search-and-select-item:not(.dcf-d-none)').length === DCFUtility.magicNumbers('int0')) {
+      const shownGroupItems = singleGroup.querySelectorAll('.dcf-search-and-select-available-item:not(.dcf-d-none)');
+      if (shownGroupItems.length === DCFUtility.magicNumbers('int0')) {
         singleGroup.classList.add('dcf-d-none');
       } else {
         singleGroup.classList.remove('dcf-d-none');
@@ -1768,12 +1794,15 @@ export class DCFSearchSelect {
       // TODO: Set up all attributes on select element
       selectElement.setAttribute('id', selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-label-', index));
 
+      if (selectElement.getAttribute('hidden') !== null) {
+        selectElement.setAttribute('hidden', 'hidden');
+      }
+
       if (selectElement.getAttribute('multiple') !== null) {
         this.selectsObjs.push(new DCFSearchSelectMultiple(selectElement, this.theme));
       } else {
         this.selectsObjs.push(new DCFSearchSelectSingle(selectElement, this.theme));
       }
-
     });
   }
 }
