@@ -25,8 +25,14 @@ import { DCFUtility } from './dcf-utility';
  * @property {Array<ParsedOption>} options - A list of options found
  */
 
+/** Styling for the Search and Select component */
+// eslint-disable-next-line padded-blocks
 export class DCFSearchSelectTheme {
-  // Sets up the theme
+
+  /**
+   * Constructor for the class,
+   * this will build the variables with their default values
+   */
   constructor() {
     this.searchAndSelectClassList = [
       'dcf-relative'
@@ -183,8 +189,17 @@ export class DCFSearchSelectTheme {
   }
 }
 
+/** This is the class for a single instance of a multi-select combobox */
+// eslint-disable-next-line padded-blocks
 class DCFSearchSelectMultiple {
-  constructor(selectElement, theme) {
+
+  /**
+   * Constructor for the multi-select combobox
+   * @param { HTMLSelectElement } selectElement The select that will be used to build the component
+   * @param { DCFSearchSelectTheme | null } theme The theme to be used to build the component
+   */
+  constructor(selectElement, theme = null) {
+    // If no theme is provided then we will create the default one
     if (theme instanceof DCFSearchSelectTheme) {
       this.theme = theme;
     } else {
@@ -194,8 +209,10 @@ class DCFSearchSelectMultiple {
     this.selectElement = selectElement;
     this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
 
+    // We will create a random ID per component
     this.uuid = DCFUtility.uuidv4();
 
+    // These are the IDs that will be used for the whole component
     this.selectID = this.selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-select');
     this.labelID = this.labelElement.getAttribute('id') || this.uuid.concat('-search-and-select-label');
     this.searchAndSelectID = this.uuid.concat('-search-and-select');
@@ -204,9 +221,11 @@ class DCFSearchSelectMultiple {
     this.selectedItemsListID = this.uuid.concat('-search-and-select-selected-items-list');
     this.selectedItemsHelpID = this.uuid.concat('-search-and-select-selected-items-list-help');
 
+    // TODO: Fix this so it can be used for all elements
     this.labelElement.setAttribute('id', this.labelID);
     this.labelElement.setAttribute('for', this.inputID);
 
+    // This is the core markup for the component
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
       <div class="dcf-search-and-select-search-area-multiple ${ this.theme.searchAreaClassList.join(' ') }" >
@@ -249,18 +268,19 @@ class DCFSearchSelectMultiple {
     `;
     this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
     this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
-    this.searchAndSelectElement.setAttribute('hidden', 'hidden');
+    this.searchAndSelectElement.setAttribute('hidden', 'hidden'); // This will be removed later in the constructor
     this.searchAndSelectElement.dataset.for = this.selectID;
     selectElement.after(this.searchAndSelectElement);
 
+    // We will select the items for use in the rest of the component
     this.inputElement = this.searchAndSelectElement.querySelector('input');
     this.selectedItemsListElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-selected-items');
     this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
     this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area-multiple');
 
+    // We will parse the select element and build the available items from that
     this.parsedSelect = this.parseSelect();
     this.availableItemsListElement = this.buildAvailableItems();
-
     this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
     this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
     this.availableItemsListElement.setAttribute('aria-multiselectable', true);
@@ -270,9 +290,11 @@ class DCFSearchSelectMultiple {
     );
     this.searchAndSelectElement.append(this.availableItemsListElement);
 
+    // These will hold the current state of the component
     this.currentFocus = null;
     this.listOfAvailableItems = [];
 
+    // We will finish setting up the event listeners and un-hide the element
     this.addEventListeners();
     this.searchAndSelectElement.removeAttribute('hidden');
   }
@@ -285,6 +307,7 @@ class DCFSearchSelectMultiple {
     let returnedData = this.parseSelectInner(this.selectElement);
     let optgroups = returnedData.optgroups;
 
+    //TODO: Make sure there are options before creating other group
     optgroups.push({
       tag: 'optgroup',
       label: 'Other',
@@ -296,7 +319,7 @@ class DCFSearchSelectMultiple {
   }
 
   /**
-   * Recursively parses the select/optgroups
+   * Recursively parses the select/optgroups and stores their values
    * @param { HTMLSelectElement|HTMLOptGroupElement } selectOrOptgroup The select or optgroup to parse
    * @returns { ParseSelectInner }
    */
@@ -333,7 +356,7 @@ class DCFSearchSelectMultiple {
   }
 
   /**
-   * Recursively builds the available items UL from output of parse select
+   * Builds the available items UL from output of parse select
    * @returns { HTMLUListElement }
    */
   buildAvailableItems() {
@@ -380,6 +403,7 @@ class DCFSearchSelectMultiple {
         `;
         groupedItems.append(newItem);
 
+        // We need to add the selected options into the selected items list
         if (singleItem.disabled === false && singleItem.selected === true) {
           this.appendNewSelectedItem(newItem);
           this.selectedItemsListElement.setAttribute('tabindex', '0');
@@ -392,7 +416,13 @@ class DCFSearchSelectMultiple {
     return availableItems;
   }
 
+  /**
+   * We will build a new selected item element and append it to the list of selected items
+   * @param { HTMLLIElement } singleAvailableItem The li from the available items list
+   */
   appendNewSelectedItem(singleAvailableItem) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     let newSelectedItem = document.createElement('li');
     newSelectedItem.dataset.id = singleAvailableItem.dataset.id;
     newSelectedItem.setAttribute('id', `${ singleAvailableItem.dataset.id }-selected`);
@@ -417,6 +447,8 @@ class DCFSearchSelectMultiple {
       </span>
     `;
     this.selectedItemsListElement.append(newSelectedItem);
+
+    // If the item is not in view then we will scroll it into view
     if (!this.isSelectedItemInView(newSelectedItem)) {
       newSelectedItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -426,6 +458,7 @@ class DCFSearchSelectMultiple {
    * Add event listeners for the different parts of the search and select element
    */
   addEventListeners() {
+    // This is for when we click outside the component
     document.body.addEventListener('pointerup', (event) => {
       if (!this.searchAndSelectElement.contains(event.target)) {
         this.closeAvailableItems();
@@ -765,18 +798,34 @@ class DCFSearchSelectMultiple {
     });
   }
 
+  /**
+   * Determines if the keyboard input was a printable character or not
+   * @param { string } str string to test
+   * @returns { bool } true if the string was a printable character
+   */
   isPrintableCharacter(str) {
     return str.length === DCFUtility.magicNumbers('int1') && str.match(/\S| /);
   }
 
+  /**
+   * Determines if the available items list is expanded or not
+   * @returns { bool } true if the available items list is expanded
+   */
   isAvailableItemsOpen() {
     return !this.availableItemsListElement.classList.contains('dcf-d-none');
   }
 
+  /**
+   * Determines if the selected items list is in the tab list
+   * @returns { bool } true if the tab-able
+   */
   isSelectedItemTab() {
     return this.selectedItemsListElement.getAttribute('tabindex') === '0';
   }
 
+  /**
+   * Handles functionality of opening/expanding the available items list
+   */
   openAvailableItems() {
     this.inputElement.setAttribute('aria-expanded', 'true');
     this.openButtonElement.setAttribute('aria-expanded', 'true');
@@ -784,26 +833,38 @@ class DCFSearchSelectMultiple {
     this.availableItemsListElement.classList.remove('dcf-d-none');
   }
 
-  closeAvailableItems(force) {
-    let formattedForce = force;
-    if (typeof formattedForce !== 'boolean') {
-      formattedForce = false;
-    }
+  /**
+   * Handles functionality of closing/un-expanding the available items list
+   */
+  closeAvailableItems() {
     this.inputElement.setAttribute('aria-expanded', 'false');
     this.openButtonElement.setAttribute('aria-expanded', 'false');
 
     this.availableItemsListElement.classList.add('dcf-d-none');
   }
 
+  /**
+   * Determines if the visual focus is on the available items list
+   * @returns { bool } true if the available items list has visual focus
+   */
   visualFocusOnAvailableItems() {
     return this.availableItemsListElement.dataset.focused === 'true';
   }
 
+  /**
+   * Determines if the visual focus is on the selected items list
+   * @returns { bool } true if the selected items list has visual focus
+   */
   visualFocusOnSelectedItems() {
     return this.selectedItemsListElement.dataset.focused === 'true';
   }
 
+  /**
+   * Handles functionality of how to set the visual focus on an element
+   * @param { HTMLElement|false } elementToFocus The element to focus on or false to not focus on anything
+   */
   setVisualFocusOn(elementToFocus) {
+    // Un-set the current focused element if there is any
     if (this.currentFocus !== null && this.selectedItemsListElement.isSameNode(this.currentFocus)) {
       this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
       delete this.selectedItemsListElement.dataset.focused;
@@ -815,6 +876,7 @@ class DCFSearchSelectMultiple {
       delete this.currentFocus.dataset.focused;
     }
 
+    // Set the focus on the new element or do nothing if false
     if (elementToFocus !== false && this.selectedItemsListElement.isSameNode(elementToFocus)) {
       this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
       this.selectedItemsListElement.dataset.focused = 'true';
@@ -832,11 +894,17 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Handles functionality of how to set the visual hover on an element
+   * @param { HTMLElement|false } elementToHover The element to hover on or false to not hover on anything
+   */
   setVisualHover(elementToHover) {
+    // Un-set hover on anything inside the component
     this.searchAndSelectElement.querySelectorAll('.dcf-search-and-select-visual-hover').forEach((elem) => {
       elem.classList.remove('dcf-search-and-select-visual-hover');
     });
 
+    // Set the hover on element or do nothing on false
     if (elementToHover !== false) {
       elementToHover.classList.add('dcf-search-and-select-visual-hover');
       this.currentHover = elementToHover;
@@ -845,7 +913,12 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Gets the currently active item in the available items list
+   * @returns { HTMLLIElement|false } The currently active element in the available items list or false if there is none
+   */
   getAvailableItemActiveDescendant() {
+    //TODO: double check this is validated when used
     const currentItemID = this.inputElement.getAttribute('aria-activedescendant');
     if (currentItemID !== null && currentItemID !== '') {
       const currentItemElement = document.getElementById(currentItemID);
@@ -857,7 +930,13 @@ class DCFSearchSelectMultiple {
     return false;
   }
 
+  /**
+   * Handles functionality of setting the active element on the available items list
+   * @param { HTMLLIElement|false } itemToSet The list item to set or false if there is none
+   */
   setAvailableItemActiveDescendant(itemToSet) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     if (itemToSet !== false) {
       this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
       this.setVisualHover(itemToSet);
@@ -867,6 +946,9 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Handles functionality of scrolling the current active item into view
+   */
   scrollActiveAvailableItemInView() {
     const currentItemElement = this.getAvailableItemActiveDescendant();
     if (!this.isAvailableItemInView(currentItemElement)) {
@@ -874,7 +956,13 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Gets the current active item in the select items list
+   * @returns { HTMLLIElement|false } The currently active element in the available items list or false if there is none
+   */
   getSelectedItemActiveDescendant() {
+    //TODO: double check this is validated when used
+
     const currentItemID = this.selectedItemsListElement.getAttribute('aria-activedescendant');
     if (currentItemID !== null && currentItemID !== '') {
       const currentItemElement = document.getElementById(currentItemID);
@@ -886,7 +974,13 @@ class DCFSearchSelectMultiple {
     return false;
   }
 
+  /**
+   * Handles functionality of setting the active element on the selected items list
+   * @param { HTMLLIElement|false } itemToSet The list item to set or false if there is none
+   */
   setSelectedItemActiveDescendant(itemToSet) {
+    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+
     if (itemToSet !== false) {
       this.selectedItemsListElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
       this.setVisualHover(itemToSet);
@@ -896,6 +990,9 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Handles functionality of scrolling the current active item into view
+   */
   scrollActiveSelectedItemInView() {
     const currentItemElement = this.getSelectedItemActiveDescendant();
     if (!this.isSelectedItemInView(currentItemElement)) {
@@ -903,6 +1000,11 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Gets the next available item that is currently being shown
+   * This will loop the beginning if we are at the end of the list
+   * @returns { HTMLLIElement|null } The next shown available item or null if there is none
+   */
   getNextAvailableItem() {
     let nextElement = null;
     let nextElementFlag = false;
@@ -921,6 +1023,12 @@ class DCFSearchSelectMultiple {
     }
     return nextElement;
   }
+
+  /**
+   * Gets the previous available item that is currently being shown
+   * This will loop to the end if we are the beginning of the list
+   * @returns { HTMLLIElement|null } The previous shown available item or null if there is none
+   */
   getPreviousAvailableItem() {
     let previousElement = null;
     for (let index = 0; index < this.listOfAvailableItems.length; index++) {
@@ -935,12 +1043,22 @@ class DCFSearchSelectMultiple {
     }
     return previousElement;
   }
+
+  /**
+   * Gets the first available item that is currently being shown
+   * @returns { HTMLLIElement|null } The first shown available item or null if there is none
+   */
   getFirstAvailableItem() {
     if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
     return this.listOfAvailableItems[DCFUtility.magicNumbers('int0')];
   }
+
+  /**
+   * Gets the last available item that is currently being shown
+   * @returns { HTMLLIElement|null } The last shown available item or null if there is none
+   */
   getLastAvailableItem() {
     if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
@@ -948,6 +1066,11 @@ class DCFSearchSelectMultiple {
     return this.listOfAvailableItems[this.listOfAvailableItems.length - DCFUtility.magicNumbers('int1')];
   }
 
+  /**
+   * Gets the next selected item
+   * This will loop the beginning if we are at the end of the list
+   * @returns { HTMLLIElement|null } The next selected item or null if there is none
+   */
   getNextSelectedItem() {
     let currentItem = this.getSelectedItemActiveDescendant();
     if (currentItem === false) {
@@ -961,6 +1084,12 @@ class DCFSearchSelectMultiple {
 
     return nextElement;
   }
+
+  /**
+   * Gets the previous selected item
+   * This will loop the end if we are at the beginning of the list
+   * @returns { HTMLLIElement|null } The next selected item or null if there is none
+   */
   getPreviousSelectedItem() {
     let currentItem = this.getSelectedItemActiveDescendant();
     if (currentItem === false) {
@@ -974,6 +1103,11 @@ class DCFSearchSelectMultiple {
 
     return nextElement;
   }
+
+  /**
+   * Gets the first selected item
+   * @returns { HTMLLIElement|null } The first selected item or null if there is none
+   */
   getFirstSelectedItem() {
     const allSelectedItems = this.selectedItemsListElement.children;
     if (allSelectedItems.length === DCFUtility.magicNumbers('int0')) {
@@ -981,6 +1115,11 @@ class DCFSearchSelectMultiple {
     }
     return allSelectedItems[DCFUtility.magicNumbers('int0')];
   }
+
+  /**
+   * Gets the last selected item
+   * @returns { HTMLLIElement|null } The last selected item or null if there is none
+   */
   getLastSelectedItem() {
     const allSelectedItems = this.selectedItemsListElement.children;
     if (allSelectedItems.length === DCFUtility.magicNumbers('int0')) {
@@ -989,7 +1128,13 @@ class DCFSearchSelectMultiple {
     return allSelectedItems[allSelectedItems.length - DCFUtility.magicNumbers('int1')];
   }
 
+  /**
+   * Handles the functionality of selecting an available item
+   * @param { HTMLLIElement } itemToSelect The available item to select
+   */
   selectAvailableItem(itemToSelect) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     itemToSelect.setAttribute('aria-selected', 'true');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToSelect.dataset.value) {
@@ -1000,7 +1145,13 @@ class DCFSearchSelectMultiple {
     this.selectedItemsListElement.setAttribute('tabindex', '0');
   }
 
+  /**
+   * Handles the functionality of de-selecting an available item
+   * @param { HTMLLIElement } itemToRemove The available item to de-select
+   */
   removeAvailableItem(itemToRemove) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     itemToRemove.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToRemove.dataset.value) {
@@ -1015,7 +1166,13 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Handles the functionality of de-selecting a selected item
+   * @param { HTMLLIElement } itemToRemove The selected item to de-select
+   */
   removeSelectedItem(itemToRemove) {
+    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+
     const availableItem = this.availableItemsListElement.querySelector(`li[data-id="${ itemToRemove.dataset.id }"]`);
     availableItem.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -1030,15 +1187,36 @@ class DCFSearchSelectMultiple {
     }
   }
 
+  /**
+   * Checks if the available item is selected
+   * @param { HTMLLIElement } itemToCheck The item to check if it is selected
+   * @returns { bool } true if the item is selected
+   */
   isAvailableItemSelected(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     return itemToCheck.getAttribute('aria-selected') === 'true';
   }
 
+  /**
+   * Checks if the available item is disabled
+   * @param { HTMLLIElement } itemToCheck The item to check if it is disabled
+   * @returns { bool } true if the item is disabled
+   */
   isAvailableItemDisabled(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     return itemToCheck.getAttribute('aria-disabled') === 'true';
   }
 
+  /**
+   * Calculates if the available item is in view
+   * @param { HTMLLIElement } itemToCheck The item to check if it is in view
+   * @returns { bool } true if it is in view
+   */
   isAvailableItemInView(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     // Get the bounding client rect of the ul and li
     const listRect = this.availableItemsListElement.getBoundingClientRect();
     const itemToCheckRect = itemToCheck.getBoundingClientRect();
@@ -1048,7 +1226,14 @@ class DCFSearchSelectMultiple {
       itemToCheckRect.bottom <= listRect.bottom;
   }
 
+  /**
+   * Calculates if the selected item is in view
+   * @param { HTMLLIElement } itemToCheck The item to check if it is in view
+   * @returns { bool } true if it is in view
+   */
   isSelectedItemInView(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+
     // Get the bounding client rect of the ul and li
     const listRect = this.searchAreaElement.getBoundingClientRect();
     const itemToCheckRect = itemToCheck.getBoundingClientRect();
@@ -1058,12 +1243,16 @@ class DCFSearchSelectMultiple {
       itemToCheckRect.bottom <= listRect.bottom;
   }
 
+  /**
+   * Filters available items and hides any item that does not contain the input value's string
+   */
   filterAvailableItems() {
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
     const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-item-group');
     this.listOfAvailableItems = [];
 
+    // Removes any no results elements
     this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
       singleNoResult.remove();
     });
@@ -1091,6 +1280,7 @@ class DCFSearchSelectMultiple {
       }
     });
 
+    // if there were no items found it will add a note about no items being found
     if (noItemsFound) {
       let noItemsFoundElement = document.createElement('ul');
       noItemsFoundElement.setAttribute('role', 'presentation');
@@ -1107,8 +1297,17 @@ class DCFSearchSelectMultiple {
   }
 }
 
+/** This is the class for a single instance of a single-select combobox */
+// eslint-disable-next-line padded-blocks
 class DCFSearchSelectSingle {
-  constructor(selectElement, theme) {
+
+  /**
+   * Constructor for the multi-select combobox
+   * @param { HTMLSelectElement } selectElement The select that will be used to build the component
+   * @param { DCFSearchSelectTheme | null } theme The theme to be used to build the component
+   */
+  constructor(selectElement, theme = null) {
+    // If no theme is provided then we will create the default one
     if (theme instanceof DCFSearchSelectTheme) {
       this.theme = theme;
     } else {
@@ -1118,17 +1317,21 @@ class DCFSearchSelectSingle {
     this.selectElement = selectElement;
     this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
 
+    // We will create a random ID per component
     this.uuid = DCFUtility.uuidv4();
 
+    // These are the IDs that will be used for the whole component
     this.selectID = this.selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-select');
     this.labelID = this.labelElement.getAttribute('id') || this.uuid.concat('-search-and-select-label');
     this.searchAndSelectID = this.uuid.concat('-search-and-select');
     this.inputID = this.uuid.concat('-search-and-select-input');
     this.availableItemsListID = this.uuid.concat('-search-and-select-available-items-list');
 
+    // TODO: Fix this so it can be used for all elements
     this.labelElement.setAttribute('id', this.labelID);
     this.labelElement.setAttribute('for', this.inputID);
 
+    // This is the core markup for the component
     this.searchAndSelectElement = document.createElement('div');
     this.searchAndSelectElement.innerHTML = `
       <div class="dcf-search-and-select-search-area-single ${ this.theme.searchAreaClassList.join(' ') }" >
@@ -1158,17 +1361,18 @@ class DCFSearchSelectSingle {
     `;
     this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
     this.searchAndSelectElement.setAttribute('id', this.searchAndSelectID);
-    this.searchAndSelectElement.setAttribute('hidden', 'hidden');
+    this.searchAndSelectElement.setAttribute('hidden', 'hidden'); // This will be removed later in the constructor
     this.searchAndSelectElement.dataset.for = this.selectID;
     selectElement.after(this.searchAndSelectElement);
 
+    // We will select the items for use in the rest of the component
     this.inputElement = this.searchAndSelectElement.querySelector('input');
     this.openButtonElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-open-btn button');
     this.searchAreaElement = this.searchAndSelectElement.querySelector('.dcf-search-and-select-search-area-single');
 
+    // We will parse the select element and build the available items from that
     this.parsedSelect = this.parseSelect();
     this.availableItemsListElement = this.buildAvailableItems();
-
     this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
     this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
     this.availableItemsListElement.classList.add(
@@ -1177,9 +1381,11 @@ class DCFSearchSelectSingle {
     );
     this.searchAndSelectElement.append(this.availableItemsListElement);
 
+    // These will hold the current state of the component
     this.currentFocus = null;
     this.listOfAvailableItems = [];
 
+    // We will finish setting up the event listeners and un-hide the element
     this.addEventListeners();
     this.searchAndSelectElement.removeAttribute('hidden');
   }
@@ -1240,7 +1446,7 @@ class DCFSearchSelectSingle {
   }
 
   /**
-   * Recursively builds the available items UL from output of parse select
+   * Builds the available items UL from output of parse select
    * @returns { HTMLUListElement }
    */
   buildAvailableItems() {
@@ -1518,14 +1724,26 @@ class DCFSearchSelectSingle {
     });
   }
 
+  /**
+   * Determines if the keyboard input was a printable character or not
+   * @param { string } str string to test
+   * @returns { bool } true if the string was a printable character
+   */
   isPrintableCharacter(str) {
     return str.length === DCFUtility.magicNumbers('int1') && str.match(/\S| /);
   }
 
+  /**
+   * Determines if the available items list is expanded or not
+   * @returns { bool } true if the available items list is expanded
+   */
   isAvailableItemsOpen() {
     return !this.availableItemsListElement.classList.contains('dcf-d-none');
   }
 
+  /**
+   * Handles functionality of opening/expanding the available items list
+   */
   openAvailableItems() {
     this.inputElement.setAttribute('aria-expanded', 'true');
     this.openButtonElement.setAttribute('aria-expanded', 'true');
@@ -1533,22 +1751,30 @@ class DCFSearchSelectSingle {
     this.availableItemsListElement.classList.remove('dcf-d-none');
   }
 
-  closeAvailableItems(force) {
-    let formattedForce = force;
-    if (typeof formattedForce !== 'boolean') {
-      formattedForce = false;
-    }
+  /**
+   * Handles functionality of closing/un-expanding the available items list
+   */
+  closeAvailableItems() {
     this.inputElement.setAttribute('aria-expanded', 'false');
     this.openButtonElement.setAttribute('aria-expanded', 'false');
 
     this.availableItemsListElement.classList.add('dcf-d-none');
   }
 
+  /**
+   * Determines if the visual focus is on the available items list
+   * @returns { bool } true if the available items list has visual focus
+   */
   visualFocusOnAvailableItems() {
     return this.availableItemsListElement.dataset.focused === 'true';
   }
 
+  /**
+   * Handles functionality of how to set the visual focus on an element
+   * @param { HTMLElement|false } elementToFocus The element to focus on or false to not focus on anything
+   */
   setVisualFocusOn(elementToFocus) {
+    // Un-set the current focused element if there is any
     if (this.currentFocus !== null && this.availableItemsListElement.isSameNode(this.currentFocus)) {
       this.searchAreaElement.classList.remove('dcf-search-and-select-visual-focus');
       delete this.availableItemsListElement.dataset.focused;
@@ -1557,6 +1783,7 @@ class DCFSearchSelectSingle {
       delete this.currentFocus.dataset.focused;
     }
 
+    // Set the focus on the new element or do nothing if false
     if (elementToFocus !== false && this.availableItemsListElement.isSameNode(elementToFocus)) {
       this.searchAreaElement.classList.add('dcf-search-and-select-visual-focus');
       this.availableItemsListElement.dataset.focused = 'true';
@@ -1570,11 +1797,17 @@ class DCFSearchSelectSingle {
     }
   }
 
+  /**
+   * Handles functionality of how to set the visual hover on an element
+   * @param { HTMLElement|false } elementToHover The element to hover on or false to not hover on anything
+   */
   setVisualHover(elementToHover) {
+    // Un-set hover on anything inside the component
     this.searchAndSelectElement.querySelectorAll('.dcf-search-and-select-visual-hover').forEach((elem) => {
       elem.classList.remove('dcf-search-and-select-visual-hover');
     });
 
+    // Set the hover on element or do nothing on false
     if (elementToHover !== false) {
       elementToHover.classList.add('dcf-search-and-select-visual-hover');
       this.currentHover = elementToHover;
@@ -1583,6 +1816,10 @@ class DCFSearchSelectSingle {
     }
   }
 
+  /**
+   * Gets the currently active item in the available items list
+   * @returns { HTMLLIElement|false } The currently active element in the available items list or false if there is none
+   */
   getAvailableItemActiveDescendant() {
     const currentItemID = this.inputElement.getAttribute('aria-activedescendant');
     if (currentItemID !== null && currentItemID !== '') {
@@ -1595,7 +1832,13 @@ class DCFSearchSelectSingle {
     return false;
   }
 
+  /**
+   * Handles functionality of setting the active element on the available items list
+   * @param { HTMLLIElement|false } itemToSet The list item to set or false if there is none
+   */
   setAvailableItemActiveDescendant(itemToSet) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     if (itemToSet !== false) {
       this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
       this.setVisualHover(itemToSet);
@@ -1605,6 +1848,9 @@ class DCFSearchSelectSingle {
     }
   }
 
+  /**
+   * Handles functionality of scrolling the current active item into view
+   */
   scrollActiveAvailableItemInView() {
     const currentItemElement = this.getAvailableItemActiveDescendant();
     if (!this.isAvailableItemInView(currentItemElement)) {
@@ -1612,6 +1858,11 @@ class DCFSearchSelectSingle {
     }
   }
 
+  /**
+   * Gets the next available item that is currently being shown
+   * This will loop the beginning if we are at the end of the list
+   * @returns { HTMLLIElement|null } The next shown available item or null if there is none
+   */
   getNextAvailableItem() {
     let nextElement = null;
     let nextElementFlag = false;
@@ -1630,6 +1881,12 @@ class DCFSearchSelectSingle {
     }
     return nextElement;
   }
+
+  /**
+   * Gets the previous available item that is currently being shown
+   * This will loop to the end if we are the beginning of the list
+   * @returns { HTMLLIElement|null } The previous shown available item or null if there is none
+   */
   getPreviousAvailableItem() {
     let previousElement = null;
     for (let index = 0; index < this.listOfAvailableItems.length; index++) {
@@ -1644,12 +1901,22 @@ class DCFSearchSelectSingle {
     }
     return previousElement;
   }
+
+  /**
+   * Gets the first available item that is currently being shown
+   * @returns { HTMLLIElement|null } The first shown available item or null if there is none
+   */
   getFirstAvailableItem() {
     if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
     }
     return this.listOfAvailableItems[DCFUtility.magicNumbers('int0')];
   }
+
+  /**
+   * Gets the last available item that is currently being shown
+   * @returns { HTMLLIElement|null } The last shown available item or null if there is none
+   */
   getLastAvailableItem() {
     if (this.listOfAvailableItems.length === DCFUtility.magicNumbers('int0')) {
       return false;
@@ -1657,7 +1924,13 @@ class DCFSearchSelectSingle {
     return this.listOfAvailableItems[this.listOfAvailableItems.length - DCFUtility.magicNumbers('int1')];
   }
 
+  /**
+   * Handles the functionality of selecting an available item
+   * @param { HTMLLIElement } itemToSelect The available item to select
+   */
   selectAvailableItem(itemToSelect) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
     allItems.forEach((singleOption) => {
       singleOption.setAttribute('aria-selected', 'false');
@@ -1674,7 +1947,13 @@ class DCFSearchSelectSingle {
     this.inputElement.value = itemToSelect.dataset.label;
   }
 
+  /**
+   * Handles the functionality of de-selecting an available item
+   * @param { HTMLLIElement } itemToRemove The available item to de-select
+   */
   removeAvailableItem(itemToRemove) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     itemToRemove.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
       if (singleOption.value === itemToRemove.dataset.value) {
@@ -1683,15 +1962,36 @@ class DCFSearchSelectSingle {
     });
   }
 
+  /**
+   * Checks if the available item is selected
+   * @param { HTMLLIElement } itemToCheck The item to check if it is selected
+   * @returns { bool } true if the item is selected
+   */
   isAvailableItemSelected(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     return itemToCheck.getAttribute('aria-selected') === 'true';
   }
 
+  /**
+   * Checks if the available item is disabled
+   * @param { HTMLLIElement } itemToCheck The item to check if it is disabled
+   * @returns { bool } true if the item is disabled
+   */
   isAvailableItemDisabled(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     return itemToCheck.getAttribute('aria-disabled') === 'true';
   }
 
+  /**
+   * Calculates if the available item is in view
+   * @param { HTMLLIElement } itemToCheck The item to check if it is in view
+   * @returns { bool } true if it is in view
+   */
   isAvailableItemInView(itemToCheck) {
+    //TODO: validate it has the dcf-search-and-select-available-item class on it
+
     // Get the bounding client rect of the ul and li
     const listRect = this.availableItemsListElement.getBoundingClientRect();
     const itemToCheckRect = itemToCheck.getBoundingClientRect();
@@ -1701,12 +2001,16 @@ class DCFSearchSelectSingle {
       itemToCheckRect.bottom <= listRect.bottom;
   }
 
+  /**
+   * Filters available items and hides any item that does not contain the input value's string
+   */
   filterAvailableItems() {
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
     const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-item-group');
     this.listOfAvailableItems = [];
 
+    // Removes any no results elements
     this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-no-results').forEach((singleNoResult) => {
       singleNoResult.remove();
     });
@@ -1734,6 +2038,7 @@ class DCFSearchSelectSingle {
       }
     });
 
+    // if there were no items found it will add a note about no items being found
     if (noItemsFound) {
       let noItemsFoundElement = document.createElement('ul');
       noItemsFoundElement.setAttribute('role', 'presentation');
