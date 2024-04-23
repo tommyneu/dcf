@@ -208,21 +208,15 @@ class DCFSearchSelectSingle {
     }
 
     this.selectElement = selectElement;
-    this.labelElement = document.querySelector(`label[for=${ this.selectElement.getAttribute('id') }]`);
 
     // We will create a random ID per component
     this.uuid = DCFUtility.uuidv4();
 
     // These are the IDs that will be used for the whole component
     this.selectID = this.selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-select');
-    this.labelID = this.labelElement.getAttribute('id') || this.uuid.concat('-search-and-select-label');
     this.searchAndSelectID = this.uuid.concat('-search-and-select');
     this.inputID = this.uuid.concat('-search-and-select-input');
     this.availableItemsListID = this.uuid.concat('-search-and-select-available-items-list');
-
-    // TODO: Fix this so it can be used for all elements
-    this.labelElement.setAttribute('id', this.labelID);
-    this.labelElement.setAttribute('for', this.inputID);
 
     // This is the core markup for the component
     this.searchAndSelectElement = document.createElement('div');
@@ -245,7 +239,6 @@ class DCFSearchSelectSingle {
             tabindex="-1"
             aria-expanded="false"
             aria-controls="${ this.availableItemsListID }"
-            aria-labelledby="${ this.labelID }"
           >
             ${ this.theme.toggleButtonSVG }
           </button>
@@ -281,16 +274,55 @@ class DCFSearchSelectSingle {
     // If we did not have init this step would break and cause errors
     this.availableItemsListElement = this.buildAvailableItems();
     this.availableItemsListElement.setAttribute('id', this.availableItemsListID);
-    this.availableItemsListElement.setAttribute('aria-labelledby', this.labelID);
     this.availableItemsListElement.classList.add(
       'dcf-search-and-select-available-items',
       ...this.theme.availableItemsListClassList
     );
     this.searchAndSelectElement.append(this.availableItemsListElement);
 
+    this.fixSelectReferences();
+    this.transferSelectAttributes();
+    this.setDisabled(this.selectElement.getAttribute('disabled') !== null);
+    this.setReadOnly(this.selectElement.getAttribute('readonly') !== null);
+
     // We will finish setting up the event listeners and un-hide the element
     this.addEventListeners();
     this.searchAndSelectElement.removeAttribute('hidden');
+  }
+
+  /**
+   * Fix any references to the hidden select
+   */
+  fixSelectReferences() {
+    const attributesToFix = [
+      'for',
+      'aria-controls',
+      'aria-describedby'
+    ];
+
+    attributesToFix.forEach((singleAttr) => {
+      document.querySelectorAll(`[${ singleAttr }="${ this.selectID }"]`).forEach((elementToFix) => {
+        elementToFix.setAttribute(singleAttr, this.inputID);
+      });
+    });
+  }
+
+  /**
+   * If the select element has attributes set it will transfer them to the input
+   */
+  transferSelectAttributes() {
+    const attributesToFix = [
+      'aria-describedby',
+      'aria-label',
+      'aria-labelledby',
+      'aria-owns',
+    ];
+
+    attributesToFix.forEach((singleAttr) => {
+      if (this.selectElement.getAttribute(singleAttr) !== null) {
+        this.inputElement.setAttribute(singleAttr, this.selectElement.getAttribute(singleAttr));
+      }
+    });
   }
 
   /**
@@ -301,12 +333,14 @@ class DCFSearchSelectSingle {
     let returnedData = this.parseSelectInner(this.selectElement);
     let optgroups = returnedData.optgroups;
 
-    optgroups.push({
-      tag: 'optgroup',
-      label: 'Other',
-      element: this.selectElement,
-      items: returnedData.options,
-    });
+    if (returnedData.options.length > DCFUtility.magicNumbers('int0')) {
+      optgroups.push({
+        tag: 'optgroup',
+        label: 'Other',
+        element: this.selectElement,
+        items: returnedData.options,
+      });
+    }
 
     return optgroups;
   }
@@ -356,6 +390,8 @@ class DCFSearchSelectSingle {
     let availableItems = document.createElement('ul');
     availableItems.setAttribute('role', 'listbox');
 
+    let lastSelectedOption = null;
+
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
@@ -381,7 +417,7 @@ class DCFSearchSelectSingle {
           ...this.theme.availableItemClassList
         );
         newItem.setAttribute('role', 'option');
-        newItem.setAttribute('aria-selected', singleItem.disabled ? 'false' : singleItem.selected);
+        newItem.setAttribute('aria-selected', 'false');
         newItem.setAttribute('aria-disabled', singleItem.disabled);
         newItem.setAttribute('id', `${ singleItem.id }-available`);
         newItem.dataset.value = singleItem.value;
@@ -396,11 +432,19 @@ class DCFSearchSelectSingle {
           </span>
         `;
         groupedItems.append(newItem);
-        // TODO: figure out what todo if selected
+
+        if (singleItem.disabled === false && singleItem.selected === true) {
+          lastSelectedOption = newItem;
+        }
       });
 
       availableItems.append(groupedItems);
     });
+
+    if (lastSelectedOption !== null) {
+      lastSelectedOption.setAttribute('aria-selected', 'true');
+      this.inputElement.value = lastSelectedOption.dataset.label;
+    }
 
     return availableItems;
   }
@@ -417,9 +461,13 @@ class DCFSearchSelectSingle {
     }, true);
 
     this.searchAreaElement.addEventListener('click', () => {
+      if (this.isComponentDisabled()) {
+        return;
+      }
+
       this.setVisualFocusOn(this.searchAreaElement);
       this.inputElement.focus();
-      if (this.isAvailableItemsOpen()) {
+      if (this.isComponentReadOnly() || this.isAvailableItemsOpen()) {
         this.closeAvailableItems();
       } else {
         this.filterAvailableItems();
@@ -432,6 +480,10 @@ class DCFSearchSelectSingle {
     });
 
     this.inputElement.addEventListener('keydown', (event) => {
+      if (this.isComponentReadOnly()) {
+        return;
+      }
+
       const altKey = event.altKey;
       let preventDefault = false;
       const length = this.inputElement.value.length;
@@ -546,6 +598,10 @@ class DCFSearchSelectSingle {
     });
 
     this.inputElement.addEventListener('keyup', (event) => {
+      if (this.isComponentReadOnly()) {
+        return;
+      }
+
       const char = event.key;
       // const altKey = event.altKey;
       let preventDefault = false;
@@ -625,6 +681,65 @@ class DCFSearchSelectSingle {
         this.setAvailableItemActiveDescendant(false);
       }
     });
+  }
+
+  /**
+   * Will turn the component's disabled mode on or off
+   * @param { bool } boolDisabled the new disabled state
+   */
+  setDisabled(boolDisabled) {
+    let formattedBoolDisabled = boolDisabled;
+    if (typeof formattedBoolDisabled !== 'boolean') {
+      formattedBoolDisabled = false;
+    }
+
+    if (formattedBoolDisabled) {
+      this.inputElement.setAttribute('disabled', 'disabled');
+      this.openButtonElement.setAttribute('disabled', 'disabled');
+      this.searchAndSelectElement.classList.add('dcf-search-and-select-disabled');
+      this.setVisualFocusOn(false);
+      this.closeAvailableItems();
+    } else {
+      this.inputElement.removeAttribute('disabled');
+      this.openButtonElement.removeAttribute('disabled');
+      this.searchAndSelectElement.classList.remove('dcf-search-and-select-disabled');
+    }
+  }
+
+  /**
+   * Determines if the component is in disabled mode
+   * @returns { bool } true if the component is disabled
+   */
+  isComponentDisabled() {
+    return this.inputElement.getAttribute('disabled') !== null;
+  }
+
+  /**
+   * Will turn the component's readonly mode on or off
+   * @param { bool } boolReadOnly the new readonly state
+   */
+  setReadOnly(boolReadOnly) {
+    let formattedBoolReadOnly = boolReadOnly;
+    if (typeof formattedBoolReadOnly !== 'boolean') {
+      formattedBoolReadOnly = false;
+    }
+
+    if (formattedBoolReadOnly) {
+      this.inputElement.setAttribute('readonly', 'readonly');
+      this.openButtonElement.setAttribute('readonly', 'readonly');
+      this.closeAvailableItems();
+    } else {
+      this.inputElement.removeAttribute('readonly');
+      this.openButtonElement.removeAttribute('readonly');
+    }
+  }
+
+  /**
+   * Determines if the component is in readonly mode
+   * @returns { bool } true if the component is readonly
+   */
+  isComponentReadOnly() {
+    return this.inputElement.getAttribute('readonly') !== null;
   }
 
   /**
@@ -740,7 +855,9 @@ class DCFSearchSelectSingle {
    * @param { HTMLLIElement|false } itemToSet The list item to set or false if there is none
    */
   setAvailableItemActiveDescendant(itemToSet) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (itemToSet !== false && !this.isElementAnAvailableItem(itemToSet)) {
+      throw new Error('Element is not an available item');
+    }
 
     if (itemToSet !== false) {
       this.inputElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
@@ -756,7 +873,7 @@ class DCFSearchSelectSingle {
    */
   scrollActiveAvailableItemInView() {
     const currentItemElement = this.getAvailableItemActiveDescendant();
-    if (!this.isAvailableItemInView(currentItemElement)) {
+    if (currentItemElement !== false && !this.isAvailableItemInView(currentItemElement)) {
       currentItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
@@ -832,7 +949,9 @@ class DCFSearchSelectSingle {
    * @param { HTMLLIElement } itemToSelect The available item to select
    */
   selectAvailableItem(itemToSelect) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToSelect)) {
+      throw new Error('Element is not an available item');
+    }
 
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
     allItems.forEach((singleOption) => {
@@ -855,7 +974,9 @@ class DCFSearchSelectSingle {
    * @param { HTMLLIElement } itemToRemove The available item to de-select
    */
   removeAvailableItem(itemToRemove) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToRemove)) {
+      throw new Error('Element is not an available item');
+    }
 
     itemToRemove.setAttribute('aria-selected', 'false');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -866,12 +987,23 @@ class DCFSearchSelectSingle {
   }
 
   /**
+   * Checks if the element has the class `dcf-search-and-select-available-item`
+   * @param { HTMLElement } elementToCheck The element to check
+   * @returns { bool } true if it does contain that class
+   */
+  isElementAnAvailableItem(elementToCheck) {
+    return elementToCheck.classList.contains('dcf-search-and-select-available-item');
+  }
+
+  /**
    * Checks if the available item is selected
    * @param { HTMLLIElement } itemToCheck The item to check if it is selected
    * @returns { bool } true if the item is selected
    */
   isAvailableItemSelected(itemToCheck) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToCheck)) {
+      throw new Error('Element is not an available item');
+    }
 
     return itemToCheck.getAttribute('aria-selected') === 'true';
   }
@@ -882,7 +1014,9 @@ class DCFSearchSelectSingle {
    * @returns { bool } true if the item is disabled
    */
   isAvailableItemDisabled(itemToCheck) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToCheck)) {
+      throw new Error('Element is not an available item');
+    }
 
     return itemToCheck.getAttribute('aria-disabled') === 'true';
   }
@@ -893,7 +1027,9 @@ class DCFSearchSelectSingle {
    * @returns { bool } true if it is in view
    */
   isAvailableItemInView(itemToCheck) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToCheck)) {
+      throw new Error('Element is not an available item');
+    }
 
     // Get the bounding client rect of the ul and li
     const listRect = this.availableItemsListElement.getBoundingClientRect();
@@ -1006,7 +1142,6 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
             tabindex="-1"
             aria-expanded="false"
             aria-controls="${ this.availableItemsListID }"
-            aria-labelledby="${ this.labelID }"
           >
             ${ this.theme.toggleButtonSVG }
           </button>
@@ -1104,7 +1239,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @param { HTMLLIElement } singleAvailableItem The li from the available items list
    */
   appendNewSelectedItem(singleAvailableItem) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(singleAvailableItem)) {
+      throw new Error('Element is not an available item');
+    }
 
     let newSelectedItem = document.createElement('li');
     newSelectedItem.dataset.id = singleAvailableItem.dataset.id;
@@ -1150,9 +1287,13 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     }, true);
 
     this.searchAreaElement.addEventListener('click', () => {
+      if (this.isComponentDisabled()) {
+        return;
+      }
+
       this.setVisualFocusOn(this.searchAreaElement);
       this.inputElement.focus();
-      if (this.isAvailableItemsOpen()) {
+      if (this.isAvailableItemsOpen() || this.isComponentReadOnly()) {
         this.closeAvailableItems();
       } else {
         this.filterAvailableItems();
@@ -1165,6 +1306,10 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     });
 
     this.inputElement.addEventListener('keydown', (event) => {
+      if (this.isComponentReadOnly()) {
+        return;
+      }
+
       const altKey = event.altKey;
       const shiftKey = event.shiftKey;
       let preventDefault = false;
@@ -1282,6 +1427,10 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     });
 
     this.inputElement.addEventListener('keyup', (event) => {
+      if (this.isComponentReadOnly()) {
+        return;
+      }
+
       const char = event.key;
       // const altKey = event.altKey;
       let preventDefault = false;
@@ -1363,13 +1512,17 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     });
 
     this.selectedItemsListElement.addEventListener('click', (event) => {
+      if (this.isComponentDisabled()) {
+        return;
+      }
+
       const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
       if (closestSelectedItem === null) {
         return;
       }
 
       const closestDeleteButton = event.target.closest('.dcf-search-and-select-selected-item-remove-btn');
-      if (closestDeleteButton !== null) {
+      if (closestDeleteButton !== null && !this.isComponentReadOnly()) {
         this.selectedItemsListElement.focus();
         this.removeSelectedItem(closestSelectedItem);
         this.setAvailableItemActiveDescendant(false);
@@ -1384,6 +1537,10 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     });
 
     this.selectedItemsListElement.addEventListener('pointermove', (event) => {
+      if (this.isComponentDisabled()) {
+        return;
+      }
+
       const currentItem = this.getSelectedItemActiveDescendant();
       const closestSelectedItem = event.target.closest('.dcf-search-and-select-selected-item');
       if (closestSelectedItem === null) {
@@ -1417,6 +1574,10 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     });
 
     this.selectedItemsListElement.addEventListener('keydown', (event) => {
+      if (this.isComponentDisabled()) {
+        return;
+      }
+
       let preventDefault = false;
       const currentItem = this.getSelectedItemActiveDescendant();
       const firstItem = this.getFirstSelectedItem();
@@ -1460,14 +1621,16 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
 
       case 'Backspace':
       case 'Delete':
-        if (firstItem.isSameNode(currentItem)) {
-          this.removeSelectedItem(currentItem);
-          this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
-        } else {
-          this.setSelectedItemActiveDescendant(this.getPreviousSelectedItem());
-          this.removeSelectedItem(currentItem);
+        if (!this.isComponentReadOnly()) {
+          if (firstItem.isSameNode(currentItem)) {
+            this.removeSelectedItem(currentItem);
+            this.setSelectedItemActiveDescendant(this.getFirstSelectedItem());
+          } else {
+            this.setSelectedItemActiveDescendant(this.getPreviousSelectedItem());
+            this.removeSelectedItem(currentItem);
+          }
+          preventDefault = true;
         }
-        preventDefault = true;
         break;
 
       default:
@@ -1479,6 +1642,72 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
         event.preventDefault();
       }
     });
+  }
+
+  /**
+   * Will turn the component's disabled mode on or off
+   * @param { bool } boolDisabled the new disabled state
+   */
+  setDisabled(boolDisabled) {
+    let formattedBoolDisabled = boolDisabled;
+    if (typeof formattedBoolDisabled !== 'boolean') {
+      formattedBoolDisabled = false;
+    }
+
+    if (formattedBoolDisabled) {
+      this.inputElement.setAttribute('disabled', 'disabled');
+      this.openButtonElement.setAttribute('disabled', 'disabled');
+      this.searchAndSelectElement.classList.add('dcf-search-and-select-disabled');
+      this.selectedItemsListElement.setAttribute('aria-disabled', 'true');
+      this.selectedItemsListElement.setAttribute('tabindex', '-1');
+      this.selectedItemsListElement.querySelectorAll('button').forEach((selectedItemButton) => {
+        selectedItemButton.setAttribute('disabled', 'disabled');
+      });
+      this.setVisualFocusOn(false);
+      this.closeAvailableItems();
+    } else {
+      const allSelectedItems = this.selectedItemsListElement.querySelectorAll('li');
+
+      this.inputElement.removeAttribute('disabled');
+      this.openButtonElement.removeAttribute('disabled');
+      this.searchAndSelectElement.classList.remove('dcf-search-and-select-disabled');
+      this.selectedItemsListElement.removeAttribute('aria-disabled');
+      this.selectedItemsListElement.setAttribute(
+        'tabindex',
+        allSelectedItems.length === DCFUtility.magicNumbers('int0') ? '-1' : '0'
+      );
+      this.selectedItemsListElement.querySelectorAll('button').forEach((selectedItemButton) => {
+        selectedItemButton.removeAttribute('disabled');
+      });
+    }
+  }
+
+  /**
+   * Will turn the component's readonly mode on or off
+   * @param { bool } boolReadOnly the new readonly state
+   */
+  setReadOnly(boolReadOnly) {
+    let formattedBoolReadOnly = boolReadOnly;
+    if (typeof formattedBoolReadOnly !== 'boolean') {
+      formattedBoolReadOnly = false;
+    }
+
+    if (formattedBoolReadOnly) {
+      this.inputElement.setAttribute('readonly', 'readonly');
+      this.openButtonElement.setAttribute('readonly', 'readonly');
+      this.selectedItemsListElement.setAttribute('aria-readonly', 'true');
+      this.selectedItemsListElement.querySelectorAll('button').forEach((selectedItemButton) => {
+        selectedItemButton.setAttribute('readonly', 'readonly');
+      });
+      this.closeAvailableItems();
+    } else {
+      this.inputElement.removeAttribute('readonly');
+      this.openButtonElement.removeAttribute('readonly');
+      this.selectedItemsListElement.removeAttribute('aria-readonly');
+      this.selectedItemsListElement.querySelectorAll('button').forEach((selectedItemButton) => {
+        selectedItemButton.removeAttribute('readonly');
+      });
+    }
   }
 
   /**
@@ -1502,8 +1731,6 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @returns { HTMLLIElement|false } The currently active element in the available items list or false if there is none
    */
   getSelectedItemActiveDescendant() {
-    //TODO: double check this is validated when used
-
     const currentItemID = this.selectedItemsListElement.getAttribute('aria-activedescendant');
     if (currentItemID !== null && currentItemID !== '') {
       const currentItemElement = document.getElementById(currentItemID);
@@ -1520,7 +1747,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @param { HTMLLIElement|false } itemToSet The list item to set or false if there is none
    */
   setSelectedItemActiveDescendant(itemToSet) {
-    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+    if (itemToSet !== false && !this.isElementASelectedItem(itemToSet)) {
+      throw new Error('Element is not a selected item');
+    }
 
     if (itemToSet !== false) {
       this.selectedItemsListElement.setAttribute('aria-activedescendant', itemToSet.getAttribute('id'));
@@ -1536,7 +1765,7 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    */
   scrollActiveSelectedItemInView() {
     const currentItemElement = this.getSelectedItemActiveDescendant();
-    if (!this.isSelectedItemInView(currentItemElement)) {
+    if (currentItemElement !== false && !this.isSelectedItemInView(currentItemElement)) {
       currentItemElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
@@ -1608,7 +1837,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @param { HTMLLIElement } itemToSelect The available item to select
    */
   selectAvailableItem(itemToSelect) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToSelect)) {
+      throw new Error('Element is not an available item');
+    }
 
     itemToSelect.setAttribute('aria-selected', 'true');
     this.selectElement.querySelectorAll('option').forEach((singleOption) => {
@@ -1625,7 +1856,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @param { HTMLLIElement } itemToRemove The available item to de-select
    */
   removeAvailableItem(itemToRemove) {
-    //TODO: validate it has the dcf-search-and-select-available-item class on it
+    if (!this.isElementAnAvailableItem(itemToRemove)) {
+      throw new Error('Element is not an available item');
+    }
 
     super.removeAvailableItem(itemToRemove);
     this.selectedItemsListElement.querySelectorAll(`li[data-id="${itemToRemove.dataset.id}"]`).forEach((singleSelectedItem) => {
@@ -1641,7 +1874,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @param { HTMLLIElement } itemToRemove The selected item to de-select
    */
   removeSelectedItem(itemToRemove) {
-    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+    if (!this.isElementASelectedItem(itemToRemove)) {
+      throw new Error('Element is not a selected item');
+    }
 
     const availableItem = this.availableItemsListElement.querySelector(`li[data-id="${ itemToRemove.dataset.id }"]`);
     availableItem.setAttribute('aria-selected', 'false');
@@ -1663,7 +1898,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
    * @returns { bool } true if it is in view
    */
   isSelectedItemInView(itemToCheck) {
-    //TODO: validate it has the dcf-search-and-select-selected-item class on it
+    if (!this.isElementASelectedItem(itemToCheck)) {
+      throw new Error('Element is not a selected item');
+    }
 
     // Get the bounding client rect of the ul and li
     const listRect = this.searchAreaElement.getBoundingClientRect();
@@ -1672,6 +1909,15 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     // Check if the li is vertically in view within the ul
     return itemToCheckRect.top >= listRect.top &&
       itemToCheckRect.bottom <= listRect.bottom;
+  }
+
+  /**
+   * Checks if the element has the class `dcf-search-and-select-selected-item`
+   * @param { HTMLElement } elementToCheck The element to check
+   * @returns { bool } true if it does contain that class
+   */
+  isElementASelectedItem(elementToCheck) {
+    return elementToCheck.classList.contains('dcf-search-and-select-selected-item');
   }
 }
 
@@ -1716,7 +1962,6 @@ export class DCFSearchSelect {
   initialize() {
     // Loops through each one
     this.selects.forEach((selectElement, index) => {
-      // TODO: Set up all attributes on select element
       selectElement.setAttribute('id', selectElement.getAttribute('id') || this.uuid.concat('-search-and-select-label-', index));
 
       // Hides the select if it is not already done so
