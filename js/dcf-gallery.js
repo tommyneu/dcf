@@ -26,7 +26,7 @@ export class DCFGalleryImage {
     this.uuid = DCFUtility.uuidv4();
 
     this.bodyScrollLock = bodyScrollLock;
-    this.modalId = this.uuid.concat('-gallery-img-modal');
+    this.modalId = this.uuid.concat('-gallery-modal');
     this.galleryImageRunningTotal = 0;
 
     // Store the gallery images inputted (always will be an array )
@@ -62,8 +62,8 @@ export class DCFGalleryImage {
     this.modalObj.initialize();
     this.createModalEventListeners(modalDiv);
 
-    const modalPrevButton = modalDiv.querySelector('.dcf-gallery-img-modal-btn-prev');
-    const modalNextButton = modalDiv.querySelector('.dcf-gallery-img-modal-btn-next');
+    const modalPrevButton = modalDiv.querySelector('.dcf-gallery-btn-prev');
+    const modalNextButton = modalDiv.querySelector('.dcf-gallery-btn-next');
 
     modalPrevButton.addEventListener('click', () => {
       this.previousImageForModal();
@@ -92,14 +92,14 @@ export class DCFGalleryImage {
     modalDiv.setAttribute('id', this.modalId);
     modalDiv.setAttribute('hidden', 'hidden');
     modalDiv.innerHTML = `
-    <div class="dcf-modal-wrapper dcf-d-flex dcf-flex-col dcf-h-100%">
-      <div class="dcf-modal-header dcf-flex-shrink-0">
+    <div class="dcf-modal-wrapper dcf-relative dcf-d-flex dcf-flex-col dcf-h-100%">
+      <div class="dcf-modal-header dcf-modal-header-gallery dcf-flex-shrink-0">
         <h2 class="dcf-sr-only">Image Gallery</h2>
         <button class="dcf-btn-close-modal">Close</button>
       </div>
-      <div class="dcf-modal-content dcf-gallery-img-modal-content dcf-flex-grow-1 dcf-h-100% dcf-d-grid">
-        <div class="dcf-gallery-img-modal-prev dcf-d-flex dcf-ai-center dcf-p-4">
-          <button class="dcf-btn dcf-btn-secondary dcf-gallery-img-modal-btn-prev dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
+      <div class="dcf-modal-content dcf-modal-content-gallery dcf-flex-grow-1 dcf-h-100% dcf-d-grid">
+        <div class="dcf-gallery-prev dcf-d-flex dcf-ai-center">
+          <button class="dcf-btn dcf-btn-secondary dcf-gallery-btn-prev dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
               <span class="dcf-sr-only">Previous Image</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block" style="rotate: 180deg;" viewBox="0 0 30 36">
                 <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
@@ -110,9 +110,9 @@ export class DCFGalleryImage {
               </svg>
           </button>
         </div>
-        <div class="dcf-gallery-img-modal-next dcf-d-flex dcf-ai-center dcf-p-4">
+        <div class="dcf-gallery-next dcf-d-flex dcf-ai-center">
           <button
-          class="dcf-btn dcf-btn-secondary dcf-gallery-img-modal-btn-next dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
+          class="dcf-btn dcf-btn-secondary dcf-gallery-btn-next dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
             <span class="dcf-sr-only">Next Image</span>
             <svg xmlns="http://www.w3.org/2000/svg" class="dcf-fill-current dcf-h-4 dcf-w-4 dcf-d-block" viewBox="0 0 30 36">
               <path d="M25.5,15.3L9.3,0.9C8.6,0.3,7.6,0,6.7,0c-1,0.1-1.9,0.5-2.5,1.2
@@ -123,11 +123,11 @@ export class DCFGalleryImage {
             </svg>
           </button>
         </div>
-        <div class="dcf-gallery-img-modal-thumbnails dcf-overflow-y-hidden dcf-overflow-x-auto dcf-pt-5 dcf-pb-4">
-          <ul class="dcf-gallery-img-modal-list dcf-d-flex dcf-flex-nowrap dcf-mb-0 dcf-p-0 dcf-col-gap-3" style="list-style: none;" aria-label="images" role="tablist">
+        <div class="dcf-gallery-thumbnails dcf-overflow-y-hidden dcf-overflow-x-auto">
+          <ul class="dcf-gallery-thumbnails-list dcf-d-flex dcf-flex-nowrap" aria-label="images" role="tablist">
           </ul>
         </div>
-        <figure class="dcf-gallery-img-modal-figure dcf-d-flex dcf-flex-col dcf-ai-center" role="tabpanel" aria-live="polite">
+        <figure class="dcf-gallery-figure dcf-d-flex dcf-flex-col dcf-ai-center" role="tabpanel" aria-live="polite">
         </figure>
       </div>
     </div>
@@ -141,7 +141,7 @@ export class DCFGalleryImage {
    */
   addNewGalleryImage(imageElement) {
     if (imageElement.getAttribute('id') === null) {
-      imageElement.setAttribute('id', this.uuid.concat('-gallery-img-', this.galleryImageRunningTotal));
+      imageElement.setAttribute('id', this.uuid.concat('-gallery-', this.galleryImageRunningTotal));
     }
 
     imageElement.setAttribute('type', 'button');
@@ -338,7 +338,7 @@ export class DCFGalleryImage {
     copiedImageElement.classList.add('dcf-h-100%');
     figure.innerHTML = `
       ${copiedImageElement.outerHTML}
-      <figcaption class="dcf-gallery-img-figcaption dcf-figcaption dcf-flex-shrink-0">
+      <figcaption class="dcf-gallery-figcaption dcf-figcaption dcf-flex-shrink-0">
         <span class="dcf-gallery-img-cutline">
           ${copiedImageElement.dataset.cutline || ''}
         </span>
