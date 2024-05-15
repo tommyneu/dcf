@@ -49,28 +49,23 @@ export class DCFSearchSelectTheme {
     this.selectedItemsListClassList = [
       'dcf-d-flex',
       'dcf-flex-wrap',
-      'dcf-gap-3',
-      'dcf-m-0',
-      'dcf-p-3'
+      'dcf-m-0'
     ];
 
     this.selectedItemClassList = [
       'dcf-d-flex',
       'dcf-flex-nowrap',
-      'dcf-m-0',
       'dcf-ai-center',
       'dcf-jc-center',
-      'dcf-rounded'
+      'dcf-mb-0',
+      'dcf-relative'
     ];
 
     this.selectedItemButtonClassList = [
       'dcf-btn',
       'dcf-btn-secondary',
-      'dcf-m-0',
-      'dcf-p-1',
       'dcf-h-100%',
-      'dcf-sharp',
-      'dcf-rounded-left'
+      'dcf-z-1'
     ];
 
     this.selectedItemButtonSVG = `
@@ -83,10 +78,7 @@ export class DCFSearchSelectTheme {
     `;
 
     this.selectedItemLabelClassList = [
-      'dcf-rounded-right',
-      'dcf-b-1',
-      'dcf-b-solid',
-      'dcf-p-1'
+      'dcf-h-100%',
     ];
 
     this.toggleButtonContainerClassList = [
@@ -100,7 +92,6 @@ export class DCFSearchSelectTheme {
     this.toggleButtonClassList = [
       'dcf-btn',
       'dcf-btn-tertiary',
-      'dcf-m-0',
       'dcf-p-3'
     ];
 
@@ -119,7 +110,6 @@ export class DCFSearchSelectTheme {
     `;
 
     this.inputSingleClassList = [
-      'dcf-m-2',
       'dcf-b-0'
     ];
 
@@ -129,29 +119,28 @@ export class DCFSearchSelectTheme {
     ];
 
     this.inputMultipleClassList = [
-      'dcf-m-2',
       'dcf-b-0',
       'dcf-flex-grow-1',
       'dcf-flex-shrink-0',
     ];
 
     this.availableItemsListClassList = [
-      'dcf-w-100%',
       'dcf-absolute',
       'dcf-d-none',
-      'dcf-z-1',
-      'dcf-p-0',
-      'dcf-m-0'
+      'dcf-mb-0',
+      'dcf-pl-0',
+      'dcf-w-100%',
+      'dcf-z-2'
     ];
 
     this.availableItemsGroupClassList = [
       'dcf-m-0',
-      'dcf-p-0'
+      'dcf-pl-0'
     ];
 
     // eslint-disable-next-line id-length
     this.availableItemsGroupLabelClassList = [
-      'dcf-m-0',
+      'dcf-mb-0',
       'dcf-bold'
     ];
 
@@ -162,7 +151,7 @@ export class DCFSearchSelectTheme {
       'dcf-flex-nowrap',
       'dcf-jc-between',
       'dcf-ai-center',
-      'dcf-m-0',
+      'dcf-mb-0',
     ];
 
     this.availableItemIndicatorSVG = `
@@ -177,7 +166,7 @@ export class DCFSearchSelectTheme {
     `;
 
     this.availableItemsNoResultsClassList = [
-      'dcf-m-0',
+      'dcf-mb-0',
       'dcf-bold'
     ];
   }
@@ -395,7 +384,7 @@ class DCFSearchSelectSingle {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-available-item-group', ...this.theme.availableItemsGroupClassList);
+      groupedItems.classList.add('dcf-search-and-select-available-items-group', ...this.theme.availableItemsGroupClassList);
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
@@ -1046,7 +1035,7 @@ class DCFSearchSelectSingle {
   filterAvailableItems() {
     const searchTerm = this.inputElement.value.trim().toUpperCase();
     const allItems = this.availableItemsListElement.querySelectorAll('li.dcf-search-and-select-available-item');
-    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-item-group');
+    const allItemGroups = this.availableItemsListElement.querySelectorAll('.dcf-search-and-select-available-items-group');
     this.listOfAvailableItems = [];
 
     // Removes any no results elements
@@ -1146,7 +1135,7 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
             ${ this.theme.toggleButtonSVG }
           </button>
         </div>
-        
+
       </div>
     `;
     this.searchAndSelectElement.classList.add('dcf-search-and-select', ...this.theme.searchAndSelectClassList);
@@ -1184,7 +1173,7 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
     this.parsedSelect.forEach((singleOptgroup) => {
       let groupedItems = document.createElement('ul');
       groupedItems.setAttribute('role', 'group');
-      groupedItems.classList.add('dcf-search-and-select-available-item-group', ...this.theme.availableItemsGroupClassList);
+      groupedItems.classList.add('dcf-search-and-select-available-items-group', ...this.theme.availableItemsGroupClassList);
 
       if (this.parsedSelect.length !== DCFUtility.magicNumbers('int1')) {
         groupedItems.innerHTML = `
@@ -1262,7 +1251,9 @@ class DCFSearchSelectMultiple extends DCFSearchSelectSingle {
       >
         ${ this.theme.selectedItemButtonSVG }
       </button>
-      <span class="${ this.theme.selectedItemLabelClassList.join(' ') }">
+      <span class="
+        dcf-search-and-select-selected-item-label
+        ${ this.theme.selectedItemLabelClassList.join(' ') }">
         ${ singleAvailableItem.querySelector('.dcf-search-and-select-available-item-label').innerText }
       </span>
     `;
