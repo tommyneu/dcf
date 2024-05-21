@@ -10,10 +10,14 @@
 }
 
 
+.dcf-modal-header-gallery {
+  padding: $padding-top-gallery-modal-header $padding-right-gallery-modal-header $padding-bottom-gallery-modal-header $padding-left-gallery-modal-header;
+}
+
+
 .dcf-modal-content-gallery {
   grid-template-columns: auto 1fr auto;
   grid-template-rows: 1fr auto;
-  padding-top: $padding-top-modal-content-gallery;
 }
 
 
@@ -40,6 +44,11 @@
 }
 
 
+.dcf-gallery-img-box {
+  flex: 1 1 0;
+}
+
+
 .dcf-gallery-thumbnails {
   grid-area: 2 / 1 / 3 / -1;
   padding-bottom: $padding-bottom-gallery-thumbnails;
@@ -53,7 +62,8 @@
 
 
 .dcf-gallery-figure img {
-  object-fit: contain;
+  max-height: 100%;
+  max-width: 100%;
 }
 
 
