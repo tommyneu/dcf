@@ -93,11 +93,11 @@ export class DCFGalleryImage {
     modalDiv.setAttribute('hidden', 'hidden');
     modalDiv.innerHTML = `
     <div class="dcf-modal-wrapper dcf-relative dcf-d-flex dcf-flex-col dcf-h-100%">
-      <div class="dcf-modal-header dcf-modal-header-gallery dcf-flex-shrink-0">
+      <div class="dcf-modal-header dcf-modal-header-gallery dcf-flex-shrink-0 dcf-d-flex dcf-jc-flex-end">
         <h2 class="dcf-sr-only">Image Gallery</h2>
-        <button class="dcf-btn-close-modal">Close</button>
+        <button class="dcf-btn-close-modal dcf-btn dcf-btn-tertiary">Close</button>
       </div>
-      <div class="dcf-modal-content dcf-modal-content-gallery dcf-flex-grow-1 dcf-h-100% dcf-d-grid">
+      <div class="dcf-modal-content dcf-modal-content-gallery dcf-flex-grow-1 dcf-d-grid">
         <div class="dcf-gallery-prev dcf-d-flex dcf-ai-center">
           <button class="dcf-btn dcf-btn-secondary dcf-gallery-btn-prev dcf-d-flex dcf-jc-center dcf-ai-center dcf-h-7 dcf-w-7 dcf-p-0 dcf-circle">
               <span class="dcf-sr-only">Previous Image</span>
@@ -124,10 +124,10 @@ export class DCFGalleryImage {
           </button>
         </div>
         <div class="dcf-gallery-thumbnails dcf-overflow-y-hidden dcf-overflow-x-auto">
-          <ul class="dcf-gallery-thumbnails-list dcf-d-flex dcf-flex-nowrap" aria-label="images" role="tablist">
+          <ul class="dcf-gallery-thumbnails-list dcf-d-flex dcf-flex-nowrap dcf-mb-0" aria-label="images" role="tablist">
           </ul>
         </div>
-        <figure class="dcf-gallery-figure dcf-d-flex dcf-flex-col dcf-ai-center" role="tabpanel" aria-live="polite">
+        <figure class="dcf-gallery-figure dcf-d-flex dcf-flex-col dcf-ai-center dcf-jc-center" role="tabpanel" aria-live="polite">
         </figure>
       </div>
     </div>
@@ -335,9 +335,10 @@ export class DCFGalleryImage {
     }
 
     const copiedImageElement = this.cleanImageForModal(imageElement);
-    copiedImageElement.classList.add('dcf-h-100%');
     figure.innerHTML = `
-      ${copiedImageElement.outerHTML}
+      <div class="dcf-gallery-img-box dcf-d-flex dcf-ai-center dcf-jc-center dcf-overflow-auto">
+        ${copiedImageElement.outerHTML}
+      </div>
       <figcaption class="dcf-gallery-figcaption dcf-figcaption dcf-flex-shrink-0">
         <span class="dcf-gallery-img-cutline">
           ${copiedImageElement.dataset.cutline || ''}
