@@ -62,19 +62,19 @@
   @for $i from 1 through $bento-max-count {
 
     .dcf-bento-col-span-#{$i}\@sm {
-    grid-column: span #{$i} / span #{$i};
+      grid-column: span #{$i} / span #{$i};
     }
 
     .dcf-bento-row-span-#{$i}\@sm {
-    grid-row: span #{$i} / span #{$i};
+      grid-row: span #{$i} / span #{$i};
     }
 
     .dcf-bento-cols-#{$i}\@sm {
-    grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
+      grid-template-columns: repeat(#{$i}, minmax(0, 1fr));
     }
 
     .dcf-bento-rows-#{$i}\@sm {
-    grid-template-rows: repeat(#{$i}, minmax(0, 1fr));
+      grid-template-rows: repeat(#{$i}, minmax(0, 1fr));
     }
 
   }
