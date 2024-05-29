@@ -28,7 +28,7 @@
 }
 
 .dcf-bento-cols-auto {
-  grid-auto-rows: minmax(0, 1fr);
+  grid-auto-columns: minmax(0, 1fr);
 }
 
 .dcf-bento-rows-auto {
@@ -83,27 +83,27 @@
     grid-auto-flow: dense;
   }
 
-  .dcf-bento-flow-row\@sm {
-    grid-auto-flow: row;
-  }
-
   .dcf-bento-flow-col\@sm {
     grid-auto-flow: row;
   }
 
-  .dcf-bento-flow-row-dense\@sm {
-    grid-auto-flow: row dense;
+  .dcf-bento-flow-row\@sm {
+    grid-auto-flow: row;
   }
 
   .dcf-bento-flow-col-dense\@sm {
     grid-auto-flow: row dense;
   }
 
-  .dcf-bento-rows-auto\@sm {
-    grid-auto-rows: minmax(0, 1fr);
+  .dcf-bento-flow-row-dense\@sm {
+    grid-auto-flow: row dense;
   }
 
   .dcf-bento-cols-auto\@sm {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .dcf-bento-rows-auto\@sm {
     grid-auto-rows: minmax(0, 1fr);
   }
 
@@ -136,27 +136,27 @@
     grid-auto-flow: dense;
   }
 
-  .dcf-bento-flow-row\@md {
-    grid-auto-flow: row;
-  }
-
   .dcf-bento-flow-col\@md {
     grid-auto-flow: row;
   }
 
-  .dcf-bento-flow-row-dense\@md {
-    grid-auto-flow: row dense;
+  .dcf-bento-flow-row\@md {
+    grid-auto-flow: row;
   }
 
   .dcf-bento-flow-col-dense\@md {
     grid-auto-flow: row dense;
   }
 
-  .dcf-bento-rows-auto\@md {
-    grid-auto-rows: minmax(0, 1fr);
+  .dcf-bento-flow-row-dense\@md {
+    grid-auto-flow: row dense;
   }
 
   .dcf-bento-cols-auto\@md {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .dcf-bento-rows-auto\@md {
     grid-auto-rows: minmax(0, 1fr);
   }
 
@@ -189,27 +189,27 @@
     grid-auto-flow: dense;
   }
 
-  .dcf-bento-flow-row\@lg {
-    grid-auto-flow: row;
-  }
-
   .dcf-bento-flow-col\@lg {
     grid-auto-flow: row;
   }
 
-  .dcf-bento-flow-row-dense\@lg {
-    grid-auto-flow: row dense;
+  .dcf-bento-flow-row\@lg {
+    grid-auto-flow: row;
   }
 
   .dcf-bento-flow-col-dense\@lg {
     grid-auto-flow: row dense;
   }
 
-  .dcf-bento-rows-auto\@lg {
-    grid-auto-rows: minmax(0, 1fr);
+  .dcf-bento-flow-row-dense\@lg {
+    grid-auto-flow: row dense;
   }
 
   .dcf-bento-cols-auto\@lg {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .dcf-bento-rows-auto\@lg {
     grid-auto-rows: minmax(0, 1fr);
   }
 
@@ -242,27 +242,27 @@
     grid-auto-flow: dense;
   }
 
-  .dcf-bento-flow-row\@xl {
-    grid-auto-flow: row;
-  }
-
   .dcf-bento-flow-col\@xl {
     grid-auto-flow: row;
   }
 
-  .dcf-bento-flow-row-dense\@xl {
-    grid-auto-flow: row dense;
+  .dcf-bento-flow-row\@xl {
+    grid-auto-flow: row;
   }
 
   .dcf-bento-flow-col-dense\@xl {
     grid-auto-flow: row dense;
   }
 
-  .dcf-bento-rows-auto\@xl {
-    grid-auto-rows: minmax(0, 1fr);
+  .dcf-bento-flow-row-dense\@xl {
+    grid-auto-flow: row dense;
   }
 
   .dcf-bento-cols-auto\@xl {
+    grid-auto-columns: minmax(0, 1fr);
+  }
+
+  .dcf-bento-rows-auto\@xl {
     grid-auto-rows: minmax(0, 1fr);
   }
 
