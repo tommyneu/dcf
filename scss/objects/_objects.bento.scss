@@ -11,27 +11,27 @@
   grid-auto-flow: dense;
 }
 
+.dcf-bento-flow-col {
+  grid-auto-flow: column;
+}
+
 .dcf-bento-flow-row {
   grid-auto-flow: row;
 }
 
-.dcf-bento-flow-col {
-  grid-auto-flow: row;
+.dcf-bento-flow-col-dense {
+  grid-auto-flow: column dense;
 }
 
 .dcf-bento-flow-row-dense {
   grid-auto-flow: row dense;
 }
 
-.dcf-bento-flow-col-dense {
-  grid-auto-flow: row dense;
-}
-
-.dcf-bento-rows-auto {
+.dcf-bento-cols-auto {
   grid-auto-rows: minmax(0, 1fr);
 }
 
-.dcf-bento-cols-auto {
+.dcf-bento-rows-auto {
   grid-auto-rows: minmax(0, 1fr);
 }
 
