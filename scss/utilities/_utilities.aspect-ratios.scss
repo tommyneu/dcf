@@ -5,13 +5,16 @@
 
 // Maintain aspect ratio
 .dcf-ratio { @include ratio(!important); }
+.dcf-ratio-none { @include ratio-none-parent(!important); }
 
 
 // Child
 .dcf-ratio-child { @include ratio-child(!important); }
+.dcf-ratio-none > .dcf-ratio-child { @include ratio-none-child(!important); }
 
 
 // Aspect ratios
+.dcf-ratio-none::before { @include ratio-none(!important); }        // None
 .dcf-ratio-16x9::before { @include ratio-16x9(!important); }        // 16×9 Landscape
 .dcf-ratio-9x16::before { @include ratio-9x16(!important); }        // 9×16 Portrait
 .dcf-ratio-4x3::before { @include ratio-4x3(!important); }          // 4×3  Landscape
@@ -20,6 +23,11 @@
 
 
 @include mq(sm, min, width) {
+  .dcf-ratio\@sm { @include ratio(!important); }
+  .dcf-ratio\@sm > .dcf-ratio-child { @include ratio-child(!important); }
+  .dcf-ratio.dcf-ratio-none\@sm { @include ratio-none-parent(!important); }
+  .dcf-ratio-none\@sm > .dcf-ratio-child { @include ratio-none-child(!important); }
+  .dcf-ratio-none\@sm::before { @include ratio-none(!important); }  // None
   .dcf-ratio-16x9\@sm::before { @include ratio-16x9(!important); }  // 16×9 Landscape
   .dcf-ratio-9x16\@sm::before { @include ratio-9x16(!important); }  // 9×16 Portrait
   .dcf-ratio-4x3\@sm::before { @include ratio-4x3(!important); }    // 4×3  Landscape
@@ -29,6 +37,11 @@
 
 
 @include mq(md, min, width) {
+  .dcf-ratio\@md { @include ratio(!important); }
+  .dcf-ratio\@md > .dcf-ratio-child { @include ratio-child(!important); }
+  .dcf-ratio.dcf-ratio-none\@md { @include ratio-none-parent(!important); }
+  .dcf-ratio-none\@md > .dcf-ratio-child { @include ratio-none-child(!important); }
+  .dcf-ratio-none\@md::before { @include ratio-none(!important); }  // None
   .dcf-ratio-16x9\@md::before { @include ratio-16x9(!important); }  // 16×9 Landscape
   .dcf-ratio-9x16\@md::before { @include ratio-9x16(!important); }  // 9×16 Portrait
   .dcf-ratio-4x3\@md::before { @include ratio-4x3(!important); }    // 4×3  Landscape
@@ -38,6 +51,11 @@
 
 
 @include mq(lg, min, width) {
+  .dcf-ratio\@lg { @include ratio(!important); }
+  .dcf-ratio\@lg > .dcf-ratio-child { @include ratio-child(!important); }
+  .dcf-ratio.dcf-ratio-none\@lg { @include ratio-none-parent(!important); }
+  .dcf-ratio-none\@lg > .dcf-ratio-child { @include ratio-none-child(!important); }
+  .dcf-ratio-none\@lg::before { @include ratio-none(!important); }  // None
   .dcf-ratio-16x9\@lg::before { @include ratio-16x9(!important); }  // 16×9 Landscape
   .dcf-ratio-9x16\@lg::before { @include ratio-9x16(!important); }  // 9×16 Portrait
   .dcf-ratio-4x3\@lg::before { @include ratio-4x3(!important); }    // 4×3  Landscape
@@ -47,6 +65,11 @@
 
 
 @include mq(xl, min, width) {
+  .dcf-ratio\@xl { @include ratio(!important); }
+  .dcf-ratio\@xl > .dcf-ratio-child { @include ratio-child(!important); }
+  .dcf-ratio.dcf-ratio-none\@xl { @include ratio-none-parent(!important); }
+  .dcf-ratio-none\@xl > .dcf-ratio-child { @include ratio-none-child(!important); }
+  .dcf-ratio-none\@xl::before { @include ratio-none(!important); }  // None
   .dcf-ratio-16x9\@xl::before { @include ratio-16x9(!important); }  // 16×9 Landscape
   .dcf-ratio-9x16\@xl::before { @include ratio-9x16(!important); }  // 9×16 Portrait
   .dcf-ratio-4x3\@xl::before { @include ratio-4x3(!important); }    // 4×3  Landscape
