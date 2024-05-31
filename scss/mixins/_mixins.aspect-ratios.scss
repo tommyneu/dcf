@@ -16,16 +16,6 @@
 
 }
 
-@mixin ratio-none-parent($imp:null) {
-  overflow: initial $imp;
-  position: initial $imp;
-
-  &::before {
-    content: none $imp;
-  }
-
-}
-
 
 // Child
 @mixin ratio-child($imp:null) {
@@ -37,17 +27,7 @@
 }
 
 
-@mixin ratio-none-child($imp:null) {
-  bottom: initial $imp;
-  left: initial $imp;
-  position: initial $imp;
-  right: initial $imp;
-  top: initial $imp;
-}
-
-
 // Aspect ratios
-@mixin ratio-none($imp:null) { padding-top: initial $imp; }   // None
 @mixin ratio-16x9($imp:null) { padding-top: 56.25% $imp; }    // 16×9  Landscape
 @mixin ratio-9x16($imp:null) { padding-top: 177.77% $imp; }   // 9×16  Portrait
 @mixin ratio-4x3($imp:null) { padding-top: 75% $imp; }        // 4×3   Landscape
